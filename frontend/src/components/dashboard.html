@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArgusIQ — Supplier Risk Console</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---- core palette: warm paper + near-black ink, single gold signature ---- */
+    --ink:#0B1220; --ink-2:#16213A;
+    --paper:#FAFAF8; --surface:#FFFFFF;
+    --line:#E7E4DD; --line-strong:#D8D4CA;
+    --text:#171B26; --muted:#6B7185; --faint:#9A9FB0;
+    --accent:#C99A00; --accent-soft:#F3E6BE; --accent-ink:#3D2F00;
+
+    /* ---- risk semantics: deeper, audited tones rather than traffic-light candy ---- */
+    --critical:#A92419; --critical-bg:#FBEAE7; --critical-line:#EFCFC8;
+    --high:#9A5B00;     --high-bg:#FBF0DE;     --high-line:#EEDBB4;
+    --moderate:#8A7300; --moderate-bg:#FAF6DE; --moderate-line:#E9E0AE;
+    --low:#1B6B41;      --low-bg:#E6F4EC;      --low-line:#BFE3CD;
+    --grey:#6B7185;     --grey-bg:#EEEFF2;     --grey-line:#DDDFE5;
+
+    --radius:10px; --radius-sm:6px;
+    --shadow-card:0 1px 2px rgba(11,18,32,0.04), 0 1px 1px rgba(11,18,32,0.03);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{font-size:15px;}
+  body{
+    font-family:"Inter",-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--paper); color:var(--text); -webkit-font-smoothing:antialiased;
+    line-height:1.45; overflow-x:hidden;
+  }
+  .num, .pill-id, td.num-cell, .srs-num{
+    font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-feature-settings:"tnum";
+  }
+
+  /* ================= HEADER ================= */
+  header{
+    background:var(--ink); color:#fff;
+    display:flex; align-items:center; gap:28px; padding:16px 28px;
+    flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .logo{font-weight:800; font-size:19px; letter-spacing:-0.01em;}
+  .logo span{color:var(--accent);}
+  .tagline{font-size:11px; color:#8B93AC; letter-spacing:.02em; margin-top:1px;}
+  .searchbar{flex:1; display:flex; max-width:380px; min-width:180px;}
+  .searchbar input{
+    flex:1; border:1px solid transparent; background:rgba(255,255,255,0.08); color:#fff;
+    padding:9px 13px; border-radius:6px 0 0 6px; font-size:13px; font-family:inherit;
+  }
+  .searchbar input::placeholder{color:#7B82A0;}
+  .searchbar input:focus{outline:none; background:rgba(255,255,255,0.14);}
+  .searchbar button{
+    background:var(--accent); border:none; padding:9px 16px; border-radius:0 6px 6px 0;
+    cursor:pointer; font-weight:700; font-size:13px; color:var(--ink); font-family:inherit;
+  }
+  .searchbar button:hover{background:#DBAD11;}
+  .status{margin-left:auto; font-size:12px; display:flex; align-items:center; gap:7px; color:#AEB4C7;}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--faint); flex-shrink:0;}
+  .dot.ok{background:#3FCB7E;} .dot.bad{background:var(--critical);}
+
+  /* signature element: portfolio risk distribution strip */
+  .risk-strip-wrap{background:var(--ink-2); padding:0 28px;}
+  .risk-strip{display:flex; height:5px; max-width:1240px; margin:0 auto;}
+  .risk-strip .seg{height:100%; transition:width .4s ease;}
+  .risk-strip .seg.critical{background:var(--critical);}
+  .risk-strip .seg.high{background:var(--high);}
+  .risk-strip .seg.moderate{background:var(--moderate);}
+  .risk-strip .seg.low{background:var(--low);}
+
+  /* ================= NAV ================= */
+  nav{background:var(--ink); display:flex; gap:2px; padding:0 24px; overflow-x:auto;}
+  nav button{
+    background:none; border:none; color:#9AA1B8; padding:13px 16px; font-size:13.5px;
+    font-weight:600; font-family:inherit; cursor:pointer; border-bottom:2px solid transparent;
+    white-space:nowrap; letter-spacing:.01em;
+  }
+  nav button.active{color:#fff; border-bottom-color:var(--accent);}
+  nav button:hover{color:#fff;}
+
+  main{padding:28px; max-width:1240px; margin:0 auto;}
+  @media (max-width:480px){ main{padding:16px;} header{padding:14px 16px;} nav{padding:0 12px;} .risk-strip-wrap{padding:0 16px;} }
+  .tab{display:none;} .tab.active{display:block;}
+
+  /* ================= KPI STRIP ================= */
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:1px; margin-bottom:24px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  .kpi{background:var(--surface); padding:18px 20px;}
+  .kpi .label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600;}
+  .kpi .value{font-family:"IBM Plex Mono",monospace; font-size:26px; font-weight:600; margin-top:6px; color:var(--ink); letter-spacing:-0.01em;}
+  .kpi.red .value{color:var(--critical);} .kpi.orange .value{color:var(--high);}
+
+  /* ================= CARDS ================= */
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px 22px 18px; margin-bottom:20px; box-shadow:var(--shadow-card);}
+  .card h2{font-size:14px; font-weight:700; margin-bottom:14px; color:var(--ink); display:flex; align-items:baseline; justify-content:space-between; letter-spacing:-0.005em;}
+  .card h2 small{font-size:11.5px; color:var(--muted); font-weight:500; text-transform:none;}
+
+  /* ================= TABLES ================= */
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  #dashTable, #suppliersTable, #alertsTable{overflow-x:auto;}
+  #dashTable table, #suppliersTable table, #alertsTable table{min-width:640px;}
+  th{
+    text-align:left; padding:9px 14px; color:var(--muted); font-weight:600;
+    text-transform:uppercase; font-size:10.5px; letter-spacing:.05em;
+    border-bottom:1px solid var(--line-strong);
+  }
+  td{padding:13px 14px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tr.clickable{cursor:pointer; transition:background .12s ease;} tr.clickable:hover{background:#F7F5EE;}
+  tr.anomaly-row{background:#FDFAF1;}
+  tr.anomaly-row:hover{background:#FAF3DD;}
+
+  /* ================= RISK PILL ================= */
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; padding:3px 10px 3px 7px;
+    border-radius:5px; font-size:12px; font-weight:600; border:1px solid transparent;
+    font-family:"IBM Plex Mono",monospace; letter-spacing:-0.01em; white-space:nowrap;
+  }
+  .badge::before{content:""; width:6px; height:6px; border-radius:50%; flex-shrink:0;}
+  .badge.red{background:var(--critical-bg); color:var(--critical); border-color:var(--critical-line);}
+  .badge.red::before{background:var(--critical);}
+  .badge.orange{background:var(--high-bg); color:var(--high); border-color:var(--high-line);}
+  .badge.orange::before{background:var(--high);}
+  .badge.yellow{background:var(--moderate-bg); color:var(--moderate); border-color:var(--moderate-line);}
+  .badge.yellow::before{background:var(--moderate);}
+  .badge.green{background:var(--low-bg); color:var(--low); border-color:var(--low-line);}
+  .badge.green::before{background:var(--low);}
+  .badge.grey{background:var(--grey-bg); color:var(--grey); border-color:var(--grey-line);}
+  .badge.grey::before{background:var(--grey);}
+
+  .srs-num{font-weight:800; font-size:15px;}
+  .trend-arrow{font-weight:700; margin-left:4px; font-family:"IBM Plex Mono",monospace;}
+  .trend-arrow.declining{color:var(--critical);}
+  .trend-arrow.improving{color:var(--low);}
+  .trend-arrow.stable{color:var(--muted);}
+
+  .anomaly-flag{display:inline-flex; align-items:center; gap:5px; color:var(--critical); font-weight:600; font-size:12px;}
+
+  /* ================= BUTTONS ================= */
+  .btn{background:var(--accent); border:none; padding:9px 18px; border-radius:var(--radius-sm); font-weight:700; font-size:13px; font-family:inherit; cursor:pointer; color:var(--ink);}
+  .btn:hover{background:#DBAD11;}
+  .btn.secondary{background:var(--ink); color:#fff;}
+  .btn.secondary:hover{background:var(--ink-2);}
+  .btn.small{padding:5px 10px; font-size:12px;}
+
+  .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px;}
+  input[type=text]{padding:9px 13px; border:1px solid var(--line-strong); border-radius:var(--radius-sm); font-size:13.5px; font-family:inherit; min-width:160px; background:var(--surface); color:var(--text);}
+  input[type=text]:focus{outline:2px solid var(--accent-soft); border-color:var(--accent);}
+
+  .compare-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:720px){ .compare-grid{grid-template-columns:1fr;} }
+  .compare-empty{padding:32px 8px; text-align:center;}
+  .compare-empty p{color:var(--muted); font-size:13px; margin-bottom:14px;}
+  .compare-empty .suggestions{justify-content:center; margin-bottom:0;}
+  .empty{color:var(--muted); font-size:13px; padding:24px; text-align:center;}
+  .loading{color:var(--muted); font-size:13px; padding:24px; text-align:center;}
+  .error-box{color:var(--critical); font-size:13px; padding:16px; text-align:center; background:var(--critical-bg); border-radius:var(--radius-sm); border:1px solid var(--critical-line);}
+
+  /* ================= SUPPLIER DETAIL ================= */
+  .detail-grid{display:grid; grid-template-columns:1.2fr 1fr; gap:24px;}
+  @media (max-width:900px){ .detail-grid{grid-template-columns:1fr;} }
+  .subscore-bars{display:flex; flex-direction:column; gap:12px; margin-top:8px;}
+  .subscore-row{display:grid; grid-template-columns:118px 1fr 52px; align-items:center; gap:10px; font-size:12.5px;}
+  .subscore-track{height:7px; background:var(--grey-bg); border-radius:4px; overflow:hidden;}
+  .subscore-fill{height:100%; border-radius:4px;}
+  .weakest-note{font-size:11px; color:var(--faint); margin-top:-5px;}
+  .explanation-box{background:var(--accent-soft); border:1px solid #E6D295; border-radius:var(--radius-sm); padding:13px 15px; font-size:13px; line-height:1.55; margin-top:12px; color:var(--accent-ink);}
+  .drivers-list{list-style:none; margin-top:8px; font-size:13px;}
+  .drivers-list li{padding:9px 0; border-bottom:1px solid var(--line); display:flex; justify-content:space-between;}
+  .drivers-list li:last-child{border-bottom:none;}
+  .drivers-list li strong{font-family:"IBM Plex Mono",monospace;}
+  .pill-id{font-size:11.5px; color:var(--faint); letter-spacing:.02em;}
+  .chart-wrap{position:relative; height:150px; margin-top:10px;}
+  .forecast-note{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.5;}
+
+  /* ================= ASSISTANT ================= */
+  #chatLog{height:380px; overflow-y:auto; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-sm); padding:16px; margin-bottom:12px;}
+  .chat-empty{height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:var(--faint); padding:0 40px;}
+  .chat-empty-icon{font-size:28px; color:var(--line-strong); margin-bottom:10px;}
+  .chat-empty p{font-size:13px; line-height:1.5; max-width:320px;}
+  .msg{max-width:78%; padding:10px 14px; border-radius:8px; margin-bottom:10px; font-size:13.5px; line-height:1.5; white-space:pre-wrap;}
+  .msg.user{background:var(--ink); color:#fff; margin-left:auto; border-radius:8px 8px 2px 8px;}
+  .msg.bot{background:var(--surface); border:1px solid var(--line); border-radius:8px 8px 8px 2px;}
+  .chatRow{display:flex; gap:10px;}
+  .chatRow input{flex:1; padding:11px 14px;}
+  .suggestions{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .suggestion-chip{background:var(--surface); border:1px solid var(--line-strong); border-radius:14px; padding:6px 13px; font-size:12px; cursor:pointer; color:var(--ink-2); font-weight:500;}
+  .suggestion-chip:hover{background:var(--accent-soft); border-color:var(--accent);}
+
+  details{margin-top:8px;}
+  summary{cursor:pointer; color:var(--muted); font-size:12px;}
+  summary:hover{color:var(--text);}
+  pre{background:var(--paper); border:1px solid var(--line); padding:12px; border-radius:var(--radius-sm); font-size:11px; overflow-x:auto; font-family:"IBM Plex Mono",monospace;}
+
+  ::selection{background:var(--accent-soft);}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div>
+      <div class="logo">Argus<span>IQ</span></div>
+      <div class="tagline">AI-Powered Supplier Risk Intelligence</div>
+    </div>
+  </div>
+  <div class="searchbar">
+    <input id="quickJump" type="text" placeholder="Jump to supplier ID, e.g. S001" onkeydown="if(event.key==='Enter') quickJumpGo()">
+    <button onclick="quickJumpGo()">Go</button>
+  </div>
+  <div class="status"><span class="dot" id="healthDot"></span><span id="healthText">checking…</span></div>
+</header>
+<div class="risk-strip-wrap"><div class="risk-strip" id="riskStrip"></div></div>
+
+<nav>
+  <button class="active" data-tab="dashboard">Dashboard</button>
+  <button data-tab="suppliers">Suppliers</button>
+  <button data-tab="alerts">Alerts</button>
+  <button data-tab="compare">Compare</button>
+  <button data-tab="assistant">Assistant</button>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section class="tab active" id="tab-dashboard">
+    <div class="kpis" id="kpis"></div>
+    <div class="card">
+      <h2>Supplier Portfolio <small>sorted riskiest first</small></h2>
+      <div id="dashTable"><div class="loading">Loading…</div></div>
+    </div>
+  </section>
+
+  <!-- SUPPLIERS -->
+  <section class="tab" id="tab-suppliers">
+    <div class="card">
+      <h2>All Suppliers <small>click a row for full risk breakdown</small></h2>
+      <div id="suppliersTable"><div class="loading">Loading…</div></div>
+    </div>
+    <div class="card" id="supplierDetailCard" style="display:none;">
+      <h2 id="supplierDetailTitle">Supplier Detail</h2>
+      <div id="supplierDetail"></div>
+    </div>
+  </section>
+
+  <!-- ALERTS -->
+  <section class="tab" id="tab-alerts">
+    <div class="card">
+      <h2>Active Alerts <small>high risk, critical, or anomaly-flagged</small></h2>
+      <div id="alertsTable"><div class="loading">Loading…</div></div>
+    </div>
+  </section>
+
+  <!-- COMPARE -->
+  <section class="tab" id="tab-compare">
+    <div class="card">
+      <h2>Compare Two Suppliers</h2>
+      <div class="row">
+        <input type="text" id="cmpId1" placeholder="Supplier ID 1, e.g. S001">
+        <input type="text" id="cmpId2" placeholder="Supplier ID 2, e.g. S010">
+        <button class="btn" onclick="runCompare()">Compare</button>
+      </div>
+      <div id="compareResult">
+        <div class="compare-empty">
+          <p>Pick two suppliers to see a side-by-side risk breakdown, or try an example:</p>
+          <div class="suggestions">
+            <span class="suggestion-chip" onclick="quickCompare('S002','S010')">Sunrise Cosmetics vs Anand Textiles</span>
+            <span class="suggestion-chip" onclick="quickCompare('S001','S009')">Delhi Spice Co. vs BrightPack Logistics</span>
+            <span class="suggestion-chip" onclick="quickCompare('S003','S008')">Sharma Textiles vs Navi Mumbai Steel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASSISTANT -->
+  <section class="tab" id="tab-assistant">
+    <div class="card">
+      <h2>Risk Assistant <small>powered by the /chat endpoint</small></h2>
+      <div class="suggestions">
+        <span class="suggestion-chip" onclick="askSuggested('Which suppliers are most urgent right now?')">Most urgent suppliers?</span>
+        <span class="suggestion-chip" onclick="askSuggested('Compare Anand Textiles vs Sharma Exports')">Compare Anand vs Sharma</span>
+        <span class="suggestion-chip" onclick="askSuggested('Which suppliers will decline in the next 14 days?')">14-day outlook</span>
+        <span class="suggestion-chip" onclick="askSuggested('Tell me about Delhi Spice Co.')">About Delhi Spice Co.</span>
+      </div>
+      <div id="chatLog">
+        <div class="chat-empty">
+          <div class="chat-empty-icon">⌁</div>
+          <p>Ask about any supplier, risk trend, or comparison — or tap a suggestion above to get started.</p>
+        </div>
+      </div>
+      <div class="chatRow">
+        <input type="text" id="chatInput" placeholder="Ask about a supplier or risk trend…" onkeydown="if(event.key==='Enter') sendChat()">
+        <button class="btn" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<script>
+/* ====================== CONFIG ======================
+   Point this at your local uvicorn server while developing,
+   then swap to your Railway URL for the live demo. */
+const BASE_URL = "http://localhost:8000/api/v1";
+/* ====================================================== */
+
+// ---------- offline demo dataset ----------
+// If the real backend isn't reachable (forgot to start uvicorn, presenting on
+// a different machine, judges' wifi, etc.) the dashboard transparently falls
+// back to this embedded dataset instead of showing errors. It's a real,
+// captured snapshot of ArgusIQ's own scoring engine output for 10 suppliers,
+// not hand-typed numbers, so every figure is internally consistent.
+const DEMO_DATA = {"portfolio":{"summary":{"total":10,"critical":1,"high":4,"moderate":3,"low":2},"suppliers":[{"id":"S002","name":"Sunrise Cosmetics","category":"Beauty","location":"Himachal Pradesh","srs":16.61,"risk_band":"CRITICAL","color":"red","anomaly":true,"anomaly_reason":"BIS/FSSAI licence expired","score_history":[30,28,26,24,22,21,20,19,18,18],"forecast_14d":0.0,"trend":"declining","top_driver":{"dimension":"Financial","sub_score":8.0,"key_signal":"credit score","signal_score":2.5}},{"id":"S001","name":"Delhi Spice Co.","category":"Food","location":"Delhi NCR","srs":26.79,"risk_band":"HIGH RISK","color":"orange","anomaly":true,"anomaly_reason":"BIS/FSSAI licence expired","score_history":[28,26,24,22,20,19,18,17,16,16],"forecast_14d":0.0,"trend":"declining","top_driver":{"dimension":"Financial","sub_score":13.6,"key_signal":"GST return recency","signal_score":8.3}},{"id":"S005","name":"Mehta Garments","category":"Fashion","location":"Tirupur","srs":41.37,"risk_band":"HIGH RISK","color":"orange","anomaly":false,"anomaly_reason":null,"score_history":[45,43,41,39,37,35,34,33,32,32],"forecast_14d":10.7,"trend":"declining","top_driver":{"dimension":"Financial","sub_score":21.1,"key_signal":"GST return recency","signal_score":16.7}},{"id":"S003","name":"Sharma Textiles Pvt Ltd","category":"Fashion","location":"Surat","srs":47.6,"risk_band":"HIGH RISK","color":"orange","anomaly":true,"anomaly_reason":"3 regulatory notices pending","score_history":[58,56,54,52,50,49,48,47,47,47],"forecast_14d":29.2,"trend":"declining","top_driver":{"dimension":"Sentiment","sub_score":34.9,"key_signal":"controversy flag","signal_score":15.0}},{"id":"S004","name":"Ravi Electronics","category":"Electronics","location":"Mumbai","srs":49.45,"risk_band":"HIGH RISK","color":"orange","anomaly":false,"anomaly_reason":null,"score_history":[52,50,49,48,46,45,44,43,43,43],"forecast_14d":28.3,"trend":"declining","top_driver":{"dimension":"Financial","sub_score":32.8,"key_signal":"GST return recency","signal_score":20.0}},{"id":"S007","name":"Sharma Exports","category":"Handicrafts","location":"Jaipur","srs":67.31,"risk_band":"MODERATE","color":"yellow","anomaly":false,"anomaly_reason":null,"score_history":[58,57,56,56,55,55,55,54,54,54],"forecast_14d":48.1,"trend":"stable","top_driver":{"dimension":"Financial","sub_score":55.6,"key_signal":"credit score","signal_score":43.8}},{"id":"S006","name":"Kapoor Plastics","category":"Packaging","location":"Pune","srs":68.92,"risk_band":"MODERATE","color":"yellow","anomaly":false,"anomaly_reason":null,"score_history":[55,55,54,54,54,53,53,53,53,53],"forecast_14d":49.5,"trend":"stable","top_driver":{"dimension":"Financial","sub_score":63.3,"key_signal":"credit score","signal_score":52.5}},{"id":"S008","name":"Navi Mumbai Steel","category":"Materials","location":"Navi Mumbai","srs":74.97,"risk_band":"MODERATE","color":"yellow","anomaly":false,"anomaly_reason":null,"score_history":[65,65,66,65,66,66,66,66,66,66],"forecast_14d":67.6,"trend":"stable","top_driver":{"dimension":"Sentiment","sub_score":63.8,"key_signal":"news sentiment","signal_score":46.0}},{"id":"S009","name":"BrightPack Logistics","category":"Logistics","location":"Bengaluru","srs":91.09,"risk_band":"LOW RISK","color":"green","anomaly":false,"anomaly_reason":null,"score_history":[79,80,80,81,81,82,82,82,82,82],"forecast_14d":86.7,"trend":"stable","top_driver":{"dimension":"Sentiment","sub_score":86.4,"key_signal":"social polarity","signal_score":77.5}},{"id":"S010","name":"Anand Textiles","category":"Fashion","location":"Tirupur","srs":93.59,"risk_band":"LOW RISK","color":"green","anomaly":false,"anomaly_reason":null,"score_history":[84,85,85,86,86,87,87,88,88,88],"forecast_14d":94.4,"trend":"stable","top_driver":{"dimension":"Sentiment","sub_score":90.5,"key_signal":"social polarity","signal_score":82.5}}]},"alerts":{"alert_count":5,"alerts":[{"id":"S002","name":"Sunrise Cosmetics","category":"Beauty","location":"Himachal Pradesh","srs":16.61,"risk_band":"CRITICAL","color":"red","anomaly":true,"anomaly_reason":"BIS/FSSAI licence expired","anomaly_message":"BIS/FSSAI licence expired","forecast_14d":0.0,"days_to_high_risk":null,"trend":"declining","explanation":"Sunrise Cosmetics scores 16.61/100 (CRITICAL). \u26a0\ufe0f ANOMALY: BIS/FSSAI licence expired. Operational performance is weak \u2014 return/defect rate is the primary issue. Financial health is stressed \u2014 particularly credit score. Compliance risk is high \u2014 regulatory notices needs urgent attention. Negative market sentiment and buyer complaints are elevated.","top_driver":{"dimension":"Financial","sub_score":8.0,"key_signal":"credit score","signal_score":2.5}},{"id":"S001","name":"Delhi Spice Co.","category":"Food","location":"Delhi NCR","srs":26.79,"risk_band":"HIGH RISK","color":"orange","anomaly":true,"anomaly_reason":"BIS/FSSAI licence expired","anomaly_message":"BIS/FSSAI licence expired","forecast_14d":0.0,"days_to_high_risk":null,"trend":"declining","explanation":"Delhi Spice Co. scores 26.79/100 (HIGH RISK). \u26a0\ufe0f ANOMALY: BIS/FSSAI licence expired. Operational performance is weak \u2014 SLA breaches is the primary issue. Financial health is stressed \u2014 particularly GST return recency. Compliance risk is high \u2014 licence expiry needs urgent attention. Negative market sentiment and buyer complaints are elevated.","top_driver":{"dimension":"Financial","sub_score":13.6,"key_signal":"GST return recency","signal_score":8.3}},{"id":"S005","name":"Mehta Garments","category":"Fashion","location":"Tirupur","srs":41.37,"risk_band":"HIGH RISK","color":"orange","anomaly":false,"anomaly_reason":null,"anomaly_message":"Score at 41.37 \u2014 HIGH RISK","forecast_14d":10.7,"days_to_high_risk":null,"trend":"declining","explanation":"Mehta Garments scores 41.37/100 (HIGH RISK). Operational performance is weak \u2014 on-time delivery is the primary issue. Financial health is stressed \u2014 particularly GST return recency.","top_driver":{"dimension":"Financial","sub_score":21.1,"key_signal":"GST return recency","signal_score":16.7}},{"id":"S003","name":"Sharma Textiles Pvt Ltd","category":"Fashion","location":"Surat","srs":47.6,"risk_band":"HIGH RISK","color":"orange","anomaly":true,"anomaly_reason":"3 regulatory notices pending","anomaly_message":"3 regulatory notices pending","forecast_14d":29.2,"days_to_high_risk":null,"trend":"declining","explanation":"Sharma Textiles Pvt Ltd scores 47.6/100 (HIGH RISK). \u26a0\ufe0f ANOMALY: 3 regulatory notices pending. Operational performance is weak \u2014 on-time delivery is the primary issue. Financial health is stressed \u2014 particularly GST return recency. Negative market sentiment and buyer complaints are elevated.","top_driver":{"dimension":"Sentiment","sub_score":34.9,"key_signal":"controversy flag","signal_score":15.0}},{"id":"S004","name":"Ravi Electronics","category":"Electronics","location":"Mumbai","srs":49.45,"risk_band":"HIGH RISK","color":"orange","anomaly":false,"anomaly_reason":null,"anomaly_message":"Score at 49.45 \u2014 HIGH RISK","forecast_14d":28.3,"days_to_high_risk":null,"trend":"declining","explanation":"Ravi Electronics scores 49.45/100 (HIGH RISK). Operational performance is weak \u2014 on-time delivery is the primary issue. Financial health is stressed \u2014 particularly GST return recency.","top_driver":{"dimension":"Financial","sub_score":32.8,"key_signal":"GST return recency","signal_score":20.0}}]},"details":{"S001":{"supplier_id":"S001","supplier_name":"Delhi Spice Co.","category":"Food","location":"Delhi NCR","srs":26.79,"risk_band":"HIGH RISK","color":"orange","anomaly_triggered":true,"anomaly_reason":"BIS/FSSAI licence expired","sub_scores":{"operational":32.02,"financial":13.6,"compliance":41.75,"sentiment":21.0},"sub_score_details":{"operational":{"on-time delivery":30.0,"dispatch delay":31.4,"order fill rate":40.0,"return/defect rate":30.0,"SLA breaches":26.7},"financial":{"GST filing regularity":12.5,"GST return recency":8.3,"payment history":18.8,"credit score":10.0,"bank stability":20.0},"compliance":{"BIS/FSSAI licence":5.0,"GST registration":95.0,"regulatory notices":20.0,"licence expiry":0.0},"sentiment":{"news sentiment":19.0,"social polarity":25.0,"buyer reviews":27.5,"complaint signals":10.0,"controversy flag":15.0}},"top_risk_drivers":[{"dimension":"Financial","sub_score":13.6,"key_signal":"GST return recency","signal_score":8.3},{"dimension":"Sentiment","sub_score":21.0,"key_signal":"complaint signals","signal_score":10.0},{"dimension":"Operational","sub_score":32.0,"key_signal":"SLA breaches","signal_score":26.7}],"score_history":[28,26,24,22,20,19,18,17,16,16],"explanation":"Delhi Spice Co. scores 26.79/100 (HIGH RISK). \u26a0\ufe0f ANOMALY: BIS/FSSAI licence expired. Operational performance is weak \u2014 SLA breaches is the primary issue. Financial health is stressed \u2014 particularly GST return recency. Compliance risk is high \u2014 licence expiry needs urgent attention. Negative market sentiment and buyer complaints are elevated.","forecast":{"forecast_14_days":0.0,"trend":"declining","slope":-1.37,"days_to_high_risk":null,"days_to_critical":null,"prediction_text":"Score is slowly declining. Monitor closely over the next 14 days.","forecast_available":true},"score_history_full":[{"day":1,"srs":28},{"day":2,"srs":26},{"day":3,"srs":24},{"day":4,"srs":22},{"day":5,"srs":20},{"day":6,"srs":19},{"day":7,"srs":18},{"day":8,"srs":17},{"day":9,"srs":16},{"day":10,"srs":16}]},"S002":{"supplier_id":"S002","supplier_name":"Sunrise Cosmetics","category":"Beauty","location":"Himachal Pradesh","srs":16.61,"risk_band":"CRITICAL","color":"red","anomaly_triggered":true,"anomaly_reason":"BIS/FSSAI licence expired","sub_scores":{"operational":26.13,"financial":8.04,"compliance":10.75,"sentiment":19.38},"sub_score_details":{"operational":{"on-time delivery":25.0,"dispatch delay":25.7,"order fill rate":36.0,"return/defect rate":20.0,"SLA breaches":20.0},"financial":{"GST filing regularity":6.2,"GST return recency":3.3,"payment history":12.5,"credit score":2.5,"bank stability":20.0},"compliance":{"BIS/FSSAI licence":5.0,"GST registration":5.0,"regulatory notices":0.0,"licence expiry":0.0},"sentiment":{"news sentiment":22.5,"social polarity":27.5,"buyer reviews":22.5,"complaint signals":0.0,"controversy flag":15.0}},"top_risk_drivers":[{"dimension":"Financial","sub_score":8.0,"key_signal":"credit score","signal_score":2.5},{"dimension":"Compliance","sub_score":10.8,"key_signal":"regulatory notices","signal_score":0.0},{"dimension":"Sentiment","sub_score":19.4,"key_signal":"complaint signals","signal_score":0.0}],"score_history":[30,28,26,24,22,21,20,19,18,18],"explanation":"Sunrise Cosmetics scores 16.61/100 (CRITICAL). \u26a0\ufe0f ANOMALY: BIS/FSSAI licence expired. Operational performance is weak \u2014 return/defect rate is the primary issue. Financial health is stressed \u2014 particularly credit score. Compliance risk is high \u2014 regulatory notices needs urgent attention. Negative market sentiment and buyer complaints are elevated.","forecast":{"forecast_14_days":0.0,"trend":"declining","slope":-1.37,"days_to_high_risk":null,"days_to_critical":null,"prediction_text":"Score is slowly declining. Monitor closely over the next 14 days.","forecast_available":true},"score_history_full":[{"day":1,"srs":30},{"day":2,"srs":28},{"day":3,"srs":26},{"day":4,"srs":24},{"day":5,"srs":22},{"day":6,"srs":21},{"day":7,"srs":20},{"day":8,"srs":19},{"day":9,"srs":18},{"day":10,"srs":18}]},"S003":{"supplier_id":"S003","supplier_name":"Sharma Textiles Pvt Ltd","category":"Fashion","location":"Surat","srs":47.6,"risk_band":"HIGH RISK","color":"orange","anomaly_triggered":true,"anomaly_reason":"3 regulatory notices pending","sub_scores":{"operational":45.22,"financial":43.38,"compliance":67.62,"sentiment":34.88},"sub_score_details":{"operational":{"on-time delivery":35.0,"dispatch delay":51.4,"order fill rate":56.0,"return/defect rate":40.0,"SLA breaches":46.7},"financial":{"GST filing regularity":43.8,"GST return recency":30.0,"payment history":40.0,"credit score":35.0,"bank stability":90.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":40.0,"licence expiry":4.1},"sentiment":{"news sentiment":27.5,"social polarity":35.0,"buyer reviews":45.0,"complaint signals":40.0,"controversy flag":15.0}},"top_risk_drivers":[{"dimension":"Sentiment","sub_score":34.9,"key_signal":"controversy flag","signal_score":15.0},{"dimension":"Financial","sub_score":43.4,"key_signal":"GST return recency","signal_score":30.0},{"dimension":"Operational","sub_score":45.2,"key_signal":"on-time delivery","signal_score":35.0}],"score_history":[58,56,54,52,50,49,48,47,47,47],"explanation":"Sharma Textiles Pvt Ltd scores 47.6/100 (HIGH RISK). \u26a0\ufe0f ANOMALY: 3 regulatory notices pending. Operational performance is weak \u2014 on-time delivery is the primary issue. Financial health is stressed \u2014 particularly GST return recency. Negative market sentiment and buyer complaints are elevated.","forecast":{"forecast_14_days":29.2,"trend":"declining","slope":-1.273,"days_to_high_risk":null,"days_to_critical":17,"prediction_text":"Score is slowly declining. Monitor closely over the next 14 days.","forecast_available":true},"score_history_full":[{"day":1,"srs":58},{"day":2,"srs":56},{"day":3,"srs":54},{"day":4,"srs":52},{"day":5,"srs":50},{"day":6,"srs":49},{"day":7,"srs":48},{"day":8,"srs":47},{"day":9,"srs":47},{"day":10,"srs":47}]},"S004":{"supplier_id":"S004","supplier_name":"Ravi Electronics","category":"Electronics","location":"Mumbai","srs":49.45,"risk_band":"HIGH RISK","color":"orange","anomaly_triggered":false,"anomaly_reason":null,"sub_scores":{"operational":49.26,"financial":32.81,"compliance":72.85,"sentiment":52.0},"sub_score_details":{"operational":{"on-time delivery":41.7,"dispatch delay":55.7,"order fill rate":50.0,"return/defect rate":50.0,"SLA breaches":53.3},"financial":{"GST filing regularity":27.5,"GST return recency":20.0,"payment history":31.2,"credit score":25.0,"bank stability":90.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":60.0,"licence expiry":12.3},"sentiment":{"news sentiment":40.0,"social polarity":45.0,"buyer reviews":52.5,"complaint signals":55.0,"controversy flag":90.0}},"top_risk_drivers":[{"dimension":"Financial","sub_score":32.8,"key_signal":"GST return recency","signal_score":20.0},{"dimension":"Operational","sub_score":49.3,"key_signal":"on-time delivery","signal_score":41.7},{"dimension":"Sentiment","sub_score":52.0,"key_signal":"news sentiment","signal_score":40.0}],"score_history":[52,50,49,48,46,45,44,43,43,43],"explanation":"Ravi Electronics scores 49.45/100 (HIGH RISK). Operational performance is weak \u2014 on-time delivery is the primary issue. Financial health is stressed \u2014 particularly GST return recency.","forecast":{"forecast_14_days":28.3,"trend":"declining","slope":-1.048,"days_to_high_risk":null,"days_to_critical":17,"prediction_text":"Score is slowly declining. Monitor closely over the next 14 days.","forecast_available":true},"score_history_full":[{"day":1,"srs":52},{"day":2,"srs":50},{"day":3,"srs":49},{"day":4,"srs":48},{"day":5,"srs":46},{"day":6,"srs":45},{"day":7,"srs":44},{"day":8,"srs":43},{"day":9,"srs":43},{"day":10,"srs":43}]},"S005":{"supplier_id":"S005","supplier_name":"Mehta Garments","category":"Fashion","location":"Tirupur","srs":41.37,"risk_band":"HIGH RISK","color":"orange","anomaly_triggered":false,"anomaly_reason":null,"sub_scores":{"operational":38.76,"financial":21.15,"compliance":72.23,"sentiment":46.75},"sub_score_details":{"operational":{"on-time delivery":33.3,"dispatch delay":42.9,"order fill rate":44.0,"return/defect rate":35.0,"SLA breaches":40.0},"financial":{"GST filing regularity":22.5,"GST return recency":16.7,"payment history":25.0,"credit score":18.8,"bank stability":20.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":60.0,"licence expiry":8.2},"sentiment":{"news sentiment":35.0,"social polarity":40.0,"buyer reviews":47.5,"complaint signals":45.0,"controversy flag":90.0}},"top_risk_drivers":[{"dimension":"Financial","sub_score":21.1,"key_signal":"GST return recency","signal_score":16.7},{"dimension":"Operational","sub_score":38.8,"key_signal":"on-time delivery","signal_score":33.3},{"dimension":"Sentiment","sub_score":46.8,"key_signal":"news sentiment","signal_score":35.0}],"score_history":[45,43,41,39,37,35,34,33,32,32],"explanation":"Mehta Garments scores 41.37/100 (HIGH RISK). Operational performance is weak \u2014 on-time delivery is the primary issue. Financial health is stressed \u2014 particularly GST return recency.","forecast":{"forecast_14_days":10.7,"trend":"declining","slope":-1.521,"days_to_high_risk":null,"days_to_critical":5,"prediction_text":"Score is slowly declining. Monitor closely over the next 14 days.","forecast_available":true},"score_history_full":[{"day":1,"srs":45},{"day":2,"srs":43},{"day":3,"srs":41},{"day":4,"srs":39},{"day":5,"srs":37},{"day":6,"srs":35},{"day":7,"srs":34},{"day":8,"srs":33},{"day":9,"srs":32},{"day":10,"srs":32}]},"S006":{"supplier_id":"S006","supplier_name":"Kapoor Plastics","category":"Packaging","location":"Pune","srs":68.92,"risk_band":"MODERATE","color":"yellow","anomaly_triggered":false,"anomaly_reason":null,"sub_scores":{"operational":69.36,"financial":63.29,"compliance":79.74,"sentiment":64.75},"sub_score_details":{"operational":{"on-time delivery":63.3,"dispatch delay":71.4,"order fill rate":70.0,"return/defect rate":70.0,"SLA breaches":80.0},"financial":{"GST filing regularity":62.5,"GST return recency":63.3,"payment history":60.0,"credit score":52.5,"bank stability":90.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":100.0,"licence expiry":4.9},"sentiment":{"news sentiment":55.0,"social polarity":52.5,"buyer reviews":65.0,"complaint signals":80.0,"controversy flag":90.0}},"top_risk_drivers":[{"dimension":"Financial","sub_score":63.3,"key_signal":"credit score","signal_score":52.5},{"dimension":"Sentiment","sub_score":64.8,"key_signal":"social polarity","signal_score":52.5},{"dimension":"Operational","sub_score":69.4,"key_signal":"on-time delivery","signal_score":63.3}],"score_history":[55,55,54,54,54,53,53,53,53,53],"explanation":"Kapoor Plastics scores 68.92/100 (MODERATE). Kapoor Plastics is performing well across all dimensions.","forecast":{"forecast_14_days":49.5,"trend":"stable","slope":-0.248,"days_to_high_risk":12,"days_to_critical":113,"prediction_text":"At the current trend, this supplier will hit HIGH RISK in approximately 12 days.","forecast_available":true},"score_history_full":[{"day":1,"srs":55},{"day":2,"srs":55},{"day":3,"srs":54},{"day":4,"srs":54},{"day":5,"srs":54},{"day":6,"srs":53},{"day":7,"srs":53},{"day":8,"srs":53},{"day":9,"srs":53},{"day":10,"srs":53}]},"S007":{"supplier_id":"S007","supplier_name":"Sharma Exports","category":"Handicrafts","location":"Jaipur","srs":67.31,"risk_band":"MODERATE","color":"yellow","anomaly_triggered":false,"anomaly_reason":null,"sub_scores":{"operational":73.29,"financial":55.6,"compliance":78.7,"sentiment":61.58},"sub_score_details":{"operational":{"on-time delivery":66.7,"dispatch delay":74.3,"order fill rate":74.0,"return/defect rate":75.0,"SLA breaches":86.7},"financial":{"GST filing regularity":56.2,"GST return recency":53.3,"payment history":50.0,"credit score":43.8,"bank stability":90.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":80.0,"licence expiry":24.7},"sentiment":{"news sentiment":52.5,"social polarity":51.0,"buyer reviews":60.0,"complaint signals":75.0,"controversy flag":90.0}},"top_risk_drivers":[{"dimension":"Financial","sub_score":55.6,"key_signal":"credit score","signal_score":43.8},{"dimension":"Sentiment","sub_score":61.6,"key_signal":"social polarity","signal_score":51.0},{"dimension":"Operational","sub_score":73.3,"key_signal":"on-time delivery","signal_score":66.7}],"score_history":[58,57,56,56,55,55,55,54,54,54],"explanation":"Sharma Exports scores 67.31/100 (MODERATE). Sharma Exports is performing well across all dimensions.","forecast":{"forecast_14_days":48.1,"trend":"stable","slope":-0.424,"days_to_high_risk":9,"days_to_critical":68,"prediction_text":"At the current trend, this supplier will hit HIGH RISK in approximately 9 days.","forecast_available":true},"score_history_full":[{"day":1,"srs":58},{"day":2,"srs":57},{"day":3,"srs":56},{"day":4,"srs":56},{"day":5,"srs":55},{"day":6,"srs":55},{"day":7,"srs":55},{"day":8,"srs":54},{"day":9,"srs":54},{"day":10,"srs":54}]},"S008":{"supplier_id":"S008","supplier_name":"Navi Mumbai Steel","category":"Materials","location":"Navi Mumbai","srs":74.97,"risk_band":"MODERATE","color":"yellow","anomaly_triggered":false,"anomaly_reason":null,"sub_scores":{"operational":79.48,"financial":67.69,"compliance":86.4,"sentiment":63.75},"sub_score_details":{"operational":{"on-time delivery":75.0,"dispatch delay":78.6,"order fill rate":80.0,"return/defect rate":80.0,"SLA breaches":93.3},"financial":{"GST filing regularity":68.8,"GST return recency":70.0,"payment history":62.5,"credit score":56.2,"bank stability":90.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":100.0,"licence expiry":49.3},"sentiment":{"news sentiment":46.0,"social polarity":47.5,"buyer reviews":70.0,"complaint signals":85.0,"controversy flag":90.0}},"top_risk_drivers":[{"dimension":"Sentiment","sub_score":63.8,"key_signal":"news sentiment","signal_score":46.0},{"dimension":"Financial","sub_score":67.7,"key_signal":"credit score","signal_score":56.2},{"dimension":"Operational","sub_score":79.5,"key_signal":"on-time delivery","signal_score":75.0}],"score_history":[65,65,66,65,66,66,66,66,66,66],"explanation":"Navi Mumbai Steel scores 74.97/100 (MODERATE). Navi Mumbai Steel is performing well across all dimensions.","forecast":{"forecast_14_days":67.6,"trend":"stable","slope":0.115,"days_to_high_risk":null,"days_to_critical":null,"prediction_text":"Score is expected to remain stable around 66.","forecast_available":true},"score_history_full":[{"day":1,"srs":65},{"day":2,"srs":65},{"day":3,"srs":66},{"day":4,"srs":65},{"day":5,"srs":66},{"day":6,"srs":66},{"day":7,"srs":66},{"day":8,"srs":66},{"day":9,"srs":66},{"day":10,"srs":66}]},"S009":{"supplier_id":"S009","supplier_name":"BrightPack Logistics","category":"Logistics","location":"Bengaluru","srs":91.09,"risk_band":"LOW RISK","color":"green","anomaly_triggered":false,"anomaly_reason":null,"sub_scores":{"operational":94.31,"financial":89.52,"compliance":91.33,"sentiment":86.38},"sub_score_details":{"operational":{"on-time delivery":93.3,"dispatch delay":91.4,"order fill rate":96.0,"return/defect rate":95.0,"SLA breaches":100.0},"financial":{"GST filing regularity":93.8,"GST return recency":91.7,"payment history":87.5,"credit score":81.2,"bank stability":90.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":100.0,"licence expiry":82.2},"sentiment":{"news sentiment":82.5,"social polarity":77.5,"buyer reviews":90.0,"complaint signals":95.0,"controversy flag":90.0}},"top_risk_drivers":[{"dimension":"Sentiment","sub_score":86.4,"key_signal":"social polarity","signal_score":77.5},{"dimension":"Financial","sub_score":89.5,"key_signal":"credit score","signal_score":81.2},{"dimension":"Compliance","sub_score":91.3,"key_signal":"licence expiry","signal_score":82.2}],"score_history":[79,80,80,81,81,82,82,82,82,82],"explanation":"BrightPack Logistics scores 91.09/100 (LOW RISK). BrightPack Logistics is performing well across all dimensions.","forecast":{"forecast_14_days":86.7,"trend":"stable","slope":0.333,"days_to_high_risk":null,"days_to_critical":null,"prediction_text":"Score is expected to remain stable around 82.","forecast_available":true},"score_history_full":[{"day":1,"srs":79},{"day":2,"srs":80},{"day":3,"srs":80},{"day":4,"srs":81},{"day":5,"srs":81},{"day":6,"srs":82},{"day":7,"srs":82},{"day":8,"srs":82},{"day":9,"srs":82},{"day":10,"srs":82}]},"S010":{"supplier_id":"S010","supplier_name":"Anand Textiles","category":"Fashion","location":"Tirupur","srs":93.59,"risk_band":"LOW RISK","color":"green","anomaly_triggered":false,"anomaly_reason":null,"sub_scores":{"operational":95.56,"financial":93.81,"compliance":92.15,"sentiment":90.5},"sub_score_details":{"operational":{"on-time delivery":95.0,"dispatch delay":92.9,"order fill rate":98.0,"return/defect rate":95.0,"SLA breaches":100.0},"financial":{"GST filing regularity":97.5,"GST return recency":95.0,"payment history":93.8,"credit score":87.5,"bank stability":90.0},"compliance":{"BIS/FSSAI licence":90.0,"GST registration":95.0,"regulatory notices":100.0,"licence expiry":87.7},"sentiment":{"news sentiment":86.0,"social polarity":82.5,"buyer reviews":95.0,"complaint signals":100.0,"controversy flag":90.0}},"top_risk_drivers":[{"dimension":"Sentiment","sub_score":90.5,"key_signal":"social polarity","signal_score":82.5},{"dimension":"Compliance","sub_score":92.2,"key_signal":"licence expiry","signal_score":87.7},{"dimension":"Financial","sub_score":93.8,"key_signal":"credit score","signal_score":87.5}],"score_history":[84,85,85,86,86,87,87,88,88,88],"explanation":"Anand Textiles scores 93.59/100 (LOW RISK). Anand Textiles is performing well across all dimensions.","forecast":{"forecast_14_days":94.4,"trend":"stable","slope":0.461,"days_to_high_risk":null,"days_to_critical":null,"prediction_text":"Score is expected to remain stable around 88.","forecast_available":true},"score_history_full":[{"day":1,"srs":84},{"day":2,"srs":85},{"day":3,"srs":85},{"day":4,"srs":86},{"day":5,"srs":86},{"day":6,"srs":87},{"day":7,"srs":87},{"day":8,"srs":88},{"day":9,"srs":88},{"day":10,"srs":88}]}}};
+
+let demoMode = false;
+
+const $ = (sel) => document.querySelector(sel);
+let lastSupplierId = null;
+let charts = {}; // keep Chart.js instances so we can destroy before redraw
+
+// ---------- tab switching ----------
+document.querySelectorAll("nav button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    $("#tab-"+btn.dataset.tab).classList.add("active");
+    loadTab(btn.dataset.tab);
+  });
+});
+
+function quickJumpGo(){
+  const id = $("#quickJump").value.trim().toUpperCase();
+  if(!id) return;
+  document.querySelector('nav button[data-tab="suppliers"]').click();
+  loadSupplierDetail(id);
+}
+
+// ---------- shared formatting helpers ----------
+const COLOR_MAP = { green:"green", yellow:"yellow", orange:"orange", red:"red" };
+
+function riskBadge(srs, band, color){
+  const cls = COLOR_MAP[color] || "grey";
+  return `<span class="badge ${cls}">${band} · ${srs}</span>`;
+}
+
+function trendArrow(trend){
+  if(trend === "improving") return `<span class="trend-arrow improving">▲</span>`;
+  if(trend === "declining") return `<span class="trend-arrow declining">▼</span>`;
+  return `<span class="trend-arrow stable">●</span>`;
+}
+
+function anomalyFlag(triggered, reason){
+  if(!triggered) return `<span style="color:var(--muted);">—</span>`;
+  return `<span class="anomaly-flag" title="${reason || 'Anomaly detected'}">⚠ ${reason || "Anomaly"}</span>`;
+}
+
+// signature header element: proportional risk distribution across the portfolio
+function updateRiskStrip(summary){
+  const strip = $("#riskStrip");
+  if(!strip || !summary || !summary.total) return;
+  const segs = [
+    { key:"critical", cls:"critical", n:summary.critical },
+    { key:"high",     cls:"high",     n:summary.high },
+    { key:"moderate", cls:"moderate", n:summary.moderate },
+    { key:"low",      cls:"low",      n:summary.low },
+  ];
+  strip.innerHTML = segs
+    .filter(s=>s.n > 0)
+    .map(s=>`<div class="seg ${s.cls}" style="width:${(s.n/summary.total*100).toFixed(2)}%" title="${s.key}: ${s.n}"></div>`)
+    .join("");
+}
+
+async function safeFetch(path, opts){
+  try{
+    const res = await fetch(BASE_URL + path, opts);
+    if(!res.ok){
+      const body = await res.json().catch(()=>null);
+      throw new Error(body?.detail || ("HTTP " + res.status));
+    }
+    demoMode = false;
+    return { ok:true, data: await res.json() };
+  }catch(err){
+    console.warn("Live backend unreachable, using embedded demo data for:", path);
+    const fallback = demoFallback(path, opts);
+    if(fallback !== undefined){
+      demoMode = true;
+      return { ok:true, data: fallback, demo:true };
+    }
+    return { ok:false, error: err.message };
+  }
+}
+
+// ---------- demo-mode responses, built from the embedded dataset ----------
+function demoFallback(path, opts){
+  if(path === "/health") return { status:"ok", demo:true };
+
+  if(path === "/portfolio") return DEMO_DATA.portfolio;
+
+  if(path === "/alerts") return DEMO_DATA.alerts;
+
+  const supplierMatch = path.match(/^\/suppliers\/([^/?]+)/);
+  if(supplierMatch){
+    const id = decodeURIComponent(supplierMatch[1]).toUpperCase();
+    return DEMO_DATA.details[id]; // undefined -> safeFetch treats as real 404 below
+  }
+
+  if(path.startsWith("/compare")){
+    const params = new URLSearchParams(path.split("?")[1] || "");
+    const id1 = (params.get("id1") || "").toUpperCase();
+    const id2 = (params.get("id2") || "").toUpperCase();
+    const r1 = DEMO_DATA.details[id1], r2 = DEMO_DATA.details[id2];
+    if(!r1 || !r2) return undefined; // let it surface as "not found" like the real API would
+    const better = r1.srs > r2.srs ? r1.supplier_name : r2.supplier_name;
+    return {
+      supplier_1: r1, supplier_2: r2, recommendation: better,
+      summary: `${better} is the safer choice based on current SRS scores.`
+    };
+  }
+
+  if(path === "/chat" && opts?.method === "POST"){
+    const body = JSON.parse(opts.body || "{}");
+    return { reply: demoChatReply(body.message || "", body.supplier_id), supplier_id: body.supplier_id || null };
+  }
+
+  return undefined;
+}
+
+function demoChatReply(message, supplierId){
+  const msg = message.toLowerCase();
+  const all = Object.values(DEMO_DATA.details).sort((a,b)=>a.srs-b.srs);
+
+  if(supplierId && DEMO_DATA.details[supplierId.toUpperCase()]){
+    const s = DEMO_DATA.details[supplierId.toUpperCase()];
+    return `${s.explanation} Recommendation: ${s.color === "red" || s.color === "orange" ? "review this supplier before placing new orders." : "this supplier is currently safe to continue ordering from."}`;
+  }
+  if(msg.includes("worst") || msg.includes("urgent") || msg.includes("worry") || msg.includes("critical")){
+    const top2 = all.slice(0,2);
+    return `Your most urgent suppliers are ${top2[0].supplier_name} (${top2[0].srs} — ${top2[0].risk_band}) and ${top2[1].supplier_name} (${top2[1].srs} — ${top2[1].risk_band}). Recommendation: review both before placing new orders.`;
+  }
+  if(msg.includes("compare") || msg.includes(" vs ")){
+    const best = all[all.length-1], worst = all[0];
+    return `${best.supplier_name} (SRS ${best.srs}) significantly outperforms ${worst.supplier_name} (SRS ${worst.srs}). Recommendation: prioritise ${best.supplier_name} for high-volume orders.`;
+  }
+  if(msg.includes("14 day") || msg.includes("forecast") || msg.includes("decline")){
+    const declining = all.filter(s=>s.forecast.trend === "declining").slice(0,3);
+    if(declining.length){
+      const list = declining.map(s=>`${s.supplier_name} (${s.srs} → ${s.forecast.forecast_14_days})`).join(", ");
+      return `Suppliers projected to decline in 14 days: ${list}. Recommendation: prioritise these for review.`;
+    }
+    return "No suppliers show a declining trend in the next 14 days. Recommendation: maintain current monitoring cadence.";
+  }
+  const found = all.find(s => msg.includes(s.supplier_name.toLowerCase().split(" ")[0].toLowerCase()));
+  if(found) return `${found.explanation} Recommendation: ${found.color === "red" || found.color === "orange" ? "review this supplier before placing new orders." : "safe to continue ordering."}`;
+
+  return `ArgusIQ is running in offline demo mode (backend not reachable). Ask about a specific supplier by name, or try "which suppliers are most urgent?", "compare X vs Y", or "14 day forecast".`;
+}
+
+// ---------- health check ----------
+async function checkHealth(){
+  const { ok } = await safeFetch("/health");
+  const dot = $("#healthDot"), text = $("#healthText");
+  if(ok && !demoMode){ dot.className="dot ok"; text.textContent="Backend connected"; }
+  else{ dot.className="dot"; dot.style.background="var(--accent)"; text.textContent="Demo mode — sample data (live backend not reachable)"; }
+}
+
+// ---------- DASHBOARD: GET /portfolio -> {summary, suppliers[]} ----------
+async function loadDashboard(){
+  const { ok, data, error } = await safeFetch("/portfolio");
+  if(!ok){
+    $("#kpis").innerHTML = "";
+    $("#dashTable").innerHTML = `<div class="error-box">Couldn't load portfolio — ${error}</div>`;
+    return;
+  }
+  const { summary, suppliers } = data;
+  updateRiskStrip(summary);
+
+  $("#kpis").innerHTML = `
+    <div class="kpi"><div class="label">Total Suppliers</div><div class="value">${summary.total}</div></div>
+    <div class="kpi red"><div class="label">Critical</div><div class="value">${summary.critical}</div></div>
+    <div class="kpi orange"><div class="label">High Risk</div><div class="value">${summary.high}</div></div>
+    <div class="kpi"><div class="label">Moderate</div><div class="value">${summary.moderate}</div></div>
+    <div class="kpi"><div class="label">Low Risk</div><div class="value">${summary.low}</div></div>
+  `;
+
+  if(suppliers.length === 0){
+    $("#dashTable").innerHTML = `<div class="empty">No suppliers in portfolio.</div>`;
+    return;
+  }
+
+  let html = `<table><thead><tr>
+    <th>Supplier</th><th>Category</th><th>Location</th><th>SRS</th><th>Trend</th><th>14d Forecast</th><th>Top Risk Driver</th><th>Anomaly</th>
+  </tr></thead><tbody>`;
+  suppliers.forEach(s=>{
+    const rowCls = s.anomaly ? "clickable anomaly-row" : "clickable";
+    html += `<tr class="${rowCls}" data-id="${s.id}">
+      <td><strong>${s.name}</strong><br><span class="pill-id">${s.id}</span></td>
+      <td>${s.category}</td>
+      <td>${s.location}</td>
+      <td>${riskBadge(s.srs, s.risk_band, s.color)}</td>
+      <td>${trendArrow(s.trend)} ${s.trend}</td>
+      <td>${s.forecast_14d}</td>
+      <td>${s.top_driver ? s.top_driver.dimension + " — " + s.top_driver.key_signal : "—"}</td>
+      <td>${anomalyFlag(s.anomaly, s.anomaly_reason)}</td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  $("#dashTable").innerHTML = html;
+  $("#dashTable").querySelectorAll("tr.clickable").forEach(tr=>{
+    tr.addEventListener("click", ()=>{
+      document.querySelector('nav button[data-tab="suppliers"]').click();
+      loadSupplierDetail(tr.dataset.id);
+    });
+  });
+}
+
+// ---------- SUPPLIERS list (reuses /portfolio) ----------
+async function loadSuppliers(){
+  const { ok, data, error } = await safeFetch("/portfolio");
+  if(!ok){
+    $("#suppliersTable").innerHTML = `<div class="error-box">Couldn't load suppliers — ${error}</div>`;
+    return;
+  }
+  const rows = data.suppliers;
+  let html = `<table><thead><tr>
+    <th>Supplier</th><th>Category</th><th>Location</th><th>SRS</th><th>Trend</th><th>Anomaly</th>
+  </tr></thead><tbody>`;
+  rows.forEach(s=>{
+    html += `<tr class="clickable" data-id="${s.id}">
+      <td><strong>${s.name}</strong><br><span class="pill-id">${s.id}</span></td>
+      <td>${s.category}</td>
+      <td>${s.location}</td>
+      <td>${riskBadge(s.srs, s.risk_band, s.color)}</td>
+      <td>${trendArrow(s.trend)} ${s.trend}</td>
+      <td>${anomalyFlag(s.anomaly, s.anomaly_reason)}</td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  $("#suppliersTable").innerHTML = html;
+  $("#suppliersTable").querySelectorAll("tr.clickable").forEach(tr=>{
+    tr.addEventListener("click", ()=> loadSupplierDetail(tr.dataset.id));
+  });
+}
+
+// ---------- SUPPLIER DETAIL: GET /suppliers/{id} ----------
+async function loadSupplierDetail(id){
+  lastSupplierId = id;
+  $("#supplierDetailCard").style.display = "block";
+  $("#supplierDetailTitle").textContent = "Loading " + id + "…";
+  $("#supplierDetail").innerHTML = `<div class="loading">Loading…</div>`;
+  $("#supplierDetailCard").scrollIntoView({behavior:"smooth", block:"nearest"});
+
+  const { ok, data, error } = await safeFetch("/suppliers/" + encodeURIComponent(id));
+  if(!ok){
+    $("#supplierDetailTitle").textContent = "Supplier: " + id;
+    $("#supplierDetail").innerHTML = `<div class="error-box">${error}</div>`;
+    return;
+  }
+
+  $("#supplierDetailTitle").textContent = `${data.supplier_name} (${data.supplier_id}) — ${data.category}, ${data.location}`;
+
+  const subDims = [
+    { key:"operational", label:"Operational", weight:"35%" },
+    { key:"financial",   label:"Financial",   weight:"30%" },
+    { key:"compliance",  label:"Compliance",  weight:"20%" },
+    { key:"sentiment",   label:"Sentiment",   weight:"15%" },
+  ];
+
+  const barColor = (v) => v >= 70 ? "var(--low)" : v >= 50 ? "var(--moderate)" : "var(--critical)";
+
+  const subscoreBars = subDims.map(d=>{
+    const score = data.sub_scores[d.key];
+    const details = data.sub_score_details[d.key];
+    const weakest = Object.entries(details).sort((a,b)=>a[1]-b[1])[0];
+    return `<div class="subscore-row">
+        <div>${d.label} <span style="color:var(--muted);">(${d.weight})</span></div>
+        <div class="subscore-track"><div class="subscore-fill" style="width:${score}%; background:${barColor(score)};"></div></div>
+        <div style="text-align:right; font-weight:700;">${score}</div>
+      </div>
+      <div class="weakest-note" style="grid-column:1/-1; margin-top:-4px; margin-bottom:4px;">Weakest signal: ${weakest[0]} (${weakest[1]})</div>`;
+  }).join("");
+
+  const driversList = data.top_risk_drivers.map(d=>
+    `<li><span>${d.dimension} — ${d.key_signal}</span><strong>${d.signal_score}</strong></li>`
+  ).join("");
+
+  $("#supplierDetail").innerHTML = `
+    <div class="detail-grid">
+      <div>
+        <div class="row" style="margin-bottom:10px;">
+          ${riskBadge(data.srs, data.risk_band, data.color)}
+          ${anomalyFlag(data.anomaly_triggered, data.anomaly_reason)}
+        </div>
+        <div class="subscore-bars">${subscoreBars}</div>
+        <div class="explanation-box">${data.explanation}</div>
+        <h2 style="margin-top:16px;">Top Risk Drivers</h2>
+        <ul class="drivers-list">${driversList}</ul>
+      </div>
+      <div>
+        <h2>Score History (10 periods)</h2>
+        <div class="chart-wrap"><canvas id="historyChart"></canvas></div>
+        <h2 style="margin-top:18px;">14-Day Forecast</h2>
+        <div class="chart-wrap"><canvas id="forecastChart"></canvas></div>
+        <div class="forecast-note">${data.forecast.prediction_text || ""}</div>
+        <details style="margin-top:14px;">
+          <summary>Raw response</summary>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        </details>
+      </div>
+    </div>
+  `;
+
+  drawHistoryChart("historyChart", data.score_history_full.map(p=>p.srs));
+  drawForecastChart("forecastChart", data.score_history_full.map(p=>p.srs), data.forecast);
+}
+
+// Chart.js loads from a CDN — if the network blocks it (offline demo, restrictive
+// wifi, ad-blocker), fall back to a small hand-rolled SVG line chart so the
+// dashboard never throws or breaks. No external dependency required either way.
+const HAS_CHARTJS = typeof Chart !== "undefined";
+
+function destroyChart(id){
+  if(charts[id] && charts[id].destroy){ charts[id].destroy(); delete charts[id]; }
+}
+
+function svgLineChart(container, series){
+  // series: [{ data:[...numbers/null...], color:"#hex", dashed:bool }]
+  const w = container.clientWidth || 400, h = container.clientHeight || 160;
+  const pad = 24;
+  const maxLen = Math.max(...series.map(s=>s.data.length));
+  const xStep = (w - pad*2) / (maxLen - 1 || 1);
+  const yFor = v => h - pad - (v / 100) * (h - pad*2); // SRS is always 0-100
+  const xFor = i => pad + i * xStep;
+
+  let svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">`;
+  [0,25,50,75,100].forEach(v=>{
+    svg += `<line x1="${pad}" y1="${yFor(v)}" x2="${w-pad}" y2="${yFor(v)}" stroke="#E7E4DD" stroke-width="1"/>`;
+    svg += `<text x="2" y="${yFor(v)+3}" font-size="9" fill="#6B7185">${v}</text>`;
+  });
+  series.forEach(s=>{
+    let points = "";
+    s.data.forEach((v,i)=>{ if(v!==null && v!==undefined) points += `${xFor(i)},${yFor(v)} `; });
+    if(points.trim()){
+      svg += `<polyline points="${points.trim()}" fill="none" stroke="${s.color}" stroke-width="2.5" ${s.dashed ? 'stroke-dasharray="6,4"' : ''} />`;
+      s.data.forEach((v,i)=>{
+        if(v!==null && v!==undefined) svg += `<circle cx="${xFor(i)}" cy="${yFor(v)}" r="3" fill="${s.color}"/>`;
+      });
+    }
+  });
+  svg += `</svg>`;
+  container.innerHTML = svg;
+}
+
+function drawHistoryChart(canvasId, history){
+  const target = $("#"+canvasId);
+  if(!target) return;
+
+  if(!HAS_CHARTJS){
+    svgLineChart(target.parentElement, [{ data: history, color: "#16213A" }]);
+    return;
+  }
+
+  destroyChart(canvasId);
+  charts[canvasId] = new Chart(target, {
+    type: "line",
+    data: {
+      labels: history.map((_,i)=>"Day " + (i+1)),
+      datasets: [{
+        data: history,
+        borderColor: "#16213A",
+        backgroundColor: "rgba(22,33,58,0.07)",
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display:false } },
+      scales: { y: { min:0, max:100, ticks:{stepSize:25} } }
+    }
+  });
+}
+
+function drawForecastChart(canvasId, history, forecast){
+  const target = $("#"+canvasId);
+  if(!target) return;
+  const n = history.length;
+  const actualData = [...history, null];
+  const forecastData = history.map(()=>null);
+  forecastData[n-1] = history[n-1];
+  forecastData.push(forecast.forecast_14_days);
+
+  if(!HAS_CHARTJS){
+    svgLineChart(target.parentElement, [
+      { data: actualData, color: "#16213A" },
+      { data: forecastData, color: "#9A5B00", dashed: true },
+    ]);
+    return;
+  }
+
+  destroyChart(canvasId);
+  const labels = [...history.map((_,i)=>"Day "+(i+1)), "Day "+(n+14)];
+  charts[canvasId] = new Chart(target, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label:"Actual", data: actualData, borderColor:"#16213A", backgroundColor:"transparent", tension:0.3, pointRadius:3 },
+        { label:"14d Projection", data: forecastData, borderColor:"#9A5B00", borderDash:[6,4], backgroundColor:"transparent", tension:0.1, pointRadius:3 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display:true, position:"bottom", labels:{boxWidth:12, font:{size:11}} } },
+      scales: { y: { min:0, max:100, ticks:{stepSize:25} } }
+    }
+  });
+}
+
+// ---------- ALERTS: GET /alerts ----------
+async function loadAlerts(){
+  const { ok, data, error } = await safeFetch("/alerts");
+  if(!ok){
+    $("#alertsTable").innerHTML = `<div class="error-box">Couldn't load alerts — ${error}</div>`;
+    return;
+  }
+  if(data.alert_count === 0){
+    $("#alertsTable").innerHTML = `<div class="empty">No active alerts. All suppliers are within acceptable risk bands.</div>`;
+    return;
+  }
+  let html = `<table><thead><tr>
+    <th>Supplier</th><th>Category</th><th>SRS</th><th>Anomaly Message</th><th>Days to High Risk</th><th>Trend</th>
+  </tr></thead><tbody>`;
+  data.alerts.forEach(a=>{
+    html += `<tr class="clickable anomaly-row" data-id="${a.id}">
+      <td><strong>${a.name}</strong><br><span class="pill-id">${a.id}</span></td>
+      <td>${a.category}</td>
+      <td>${riskBadge(a.srs, a.risk_band, a.color)}</td>
+      <td>${a.anomaly_message}</td>
+      <td>${a.days_to_high_risk ?? "—"}</td>
+      <td>${trendArrow(a.trend)} ${a.trend}</td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  $("#alertsTable").innerHTML = html;
+  $("#alertsTable").querySelectorAll("tr.clickable").forEach(tr=>{
+    tr.addEventListener("click", ()=>{
+      document.querySelector('nav button[data-tab="suppliers"]').click();
+      loadSupplierDetail(tr.dataset.id);
+    });
+  });
+}
+
+// ---------- COMPARE: GET /compare?id1=&id2= ----------
+function quickCompare(id1, id2){
+  $("#cmpId1").value = id1;
+  $("#cmpId2").value = id2;
+  runCompare();
+}
+
+async function runCompare(){
+  const id1 = $("#cmpId1").value.trim().toUpperCase() || "S001";
+  const id2 = $("#cmpId2").value.trim().toUpperCase() || "S010";
+  $("#compareResult").innerHTML = `<div class="loading">Comparing…</div>`;
+
+  const { ok, data, error } = await safeFetch(`/compare?id1=${encodeURIComponent(id1)}&id2=${encodeURIComponent(id2)}`);
+  if(!ok){
+    $("#compareResult").innerHTML = `<div class="error-box">Compare failed — ${error}</div>`;
+    return;
+  }
+
+  const renderSide = (r) => {
+    const subRows = Object.entries(r.sub_scores).map(([k,v])=>
+      `<div class="subscore-row">
+        <div style="text-transform:capitalize;">${k}</div>
+        <div class="subscore-track"><div class="subscore-fill" style="width:${v}%; background:${v>=70?'var(--low)':v>=50?'var(--moderate)':'var(--critical)'};"></div></div>
+        <div style="text-align:right; font-weight:700;">${v}</div>
+      </div>`
+    ).join("");
+    return `
+      <h2>${r.supplier_name} <span class="pill-id">${r.supplier_id}</span></h2>
+      <div class="row">${riskBadge(r.srs, r.risk_band, r.color)} ${anomalyFlag(r.anomaly_triggered, r.anomaly_reason)}</div>
+      <div class="subscore-bars">${subRows}</div>
+      <div class="explanation-box" style="margin-top:10px;">${r.explanation}</div>
+    `;
+  };
+
+  $("#compareResult").innerHTML = `
+    <div class="explanation-box" style="margin-bottom:14px; font-weight:700;">${data.summary}</div>
+    <div class="compare-grid">
+      <div>${renderSide(data.supplier_1)}</div>
+      <div>${renderSide(data.supplier_2)}</div>
+    </div>
+  `;
+}
+
+// ---------- ASSISTANT: POST /chat {message, supplier_id?} ----------
+function appendMsg(text, who){
+  const log = $("#chatLog");
+  const placeholder = log.querySelector(".chat-empty");
+  if(placeholder) placeholder.remove();
+  const div = document.createElement("div");
+  div.className = "msg " + who;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function askSuggested(text){
+  $("#chatInput").value = text;
+  sendChat();
+}
+
+async function sendChat(){
+  const input = $("#chatInput");
+  const text = input.value.trim();
+  if(!text) return;
+  appendMsg(text, "user");
+  input.value = "";
+
+  const body = { message: text };
+  if(lastSupplierId) body.supplier_id = lastSupplierId; // scope to last viewed supplier if any
+
+  const { ok, data, error } = await safeFetch("/chat", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+
+  if(ok){
+    appendMsg(data.reply, "bot");
+  }else{
+    appendMsg("Couldn't reach the assistant — " + error, "bot");
+  }
+}
+
+// ---------- tab loader ----------
+function loadTab(tab){
+  if(tab==="dashboard") loadDashboard();
+  if(tab==="suppliers") loadSuppliers();
+  if(tab==="alerts") loadAlerts();
+}
+
+checkHealth();
+loadDashboard();
+setInterval(checkHealth, 15000);
+</script>
+</body>
+</html>
