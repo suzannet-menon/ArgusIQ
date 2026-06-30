@@ -45,22 +45,16 @@ export function Hero() {
           <div className="flex items-center gap-3">
             <Link
               to="/login"
-              className="hidden text-sm font-semibold text-slate-700 transition hover:text-slate-950 sm:inline-flex"
+              className=" text-sm font-semibold text-slate-700 transition hover:text-slate-950 sm:inline-flex"
             >
               Login
             </Link>
             <Link
               to="/signup"
-              className="hidden rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 sm:inline-flex"
+              className=" rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 sm:inline-flex"
             >
               Sign Up
             </Link>
-            <a
-              href="#demo"
-              className="inline-flex items-center justify-center rounded-md bg-slate-950 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5"
-            >
-              Try Demo
-            </a>
           </div>
         </div>
       </nav>
