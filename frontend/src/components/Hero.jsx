@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
+import { Bell, ShieldCheck, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Bell, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
 const trend = [
@@ -13,26 +13,17 @@ const trend = [
   { risk: 67 }
 ];
 
-const suppliers = [
-  { name: "Rajesh Textiles", risk: 67, label: "High", tone: "text-orange-500" },
-  { name: "Sharma Packaging", risk: 42, label: "Moderate", tone: "text-yellow-500" },
-  { name: "Anand Components", risk: 18, label: "Low", tone: "text-emerald-500" }
-];
-
 const navItems = [
   { label: "Problem", href: "#problem" },
   { label: "Solution", href: "#solution" },
   { label: "Demo", href: "#demo" },
-  { label: "Features", href: "#features" },
-  { label: "Start", href: "#cta" }
+  { label: "Features", href: "#features" }
 ];
 
 export function Hero() {
   return (
-    <>
     <section id="hero" className="relative overflow-hidden bg-white text-slate-950">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[820px] bg-[radial-gradient(circle_at_top,_rgba(6,182,212,0.18),transparent_45%)] blur-3xl" />
-
 
       <nav className="fixed inset-x-0 top-0 z-50 rounded-none border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-6 px-5 py-4 sm:px-8 lg:px-12 2xl:px-16">
@@ -64,42 +55,28 @@ export function Hero() {
             >
               Sign Up
             </Link>
-
-          <a
-            href="#demo"
-            className="inline-flex items-center justify-center rounded-md bg-slate-950 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5"
+            <a
+              href="#demo"
+              className="inline-flex items-center justify-center rounded-md bg-slate-950 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5"
             >
-          Try Demo
-          </a>
+              Try Demo
+            </a>
+          </div>
         </div>
-      </div>
-    </nav>
-    <div
-        aria-hidden="true"
-        className="invisible"
-        style={{ height: "var(--navbar-h, 76px)" }}
-      />
+      </nav>
 
-      <div className="section-shell ...">        
+      <div className="section-shell relative mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-16 pb-20 pt-[120px] text-center sm:px-8 lg:px-12 2xl:px-16">
         <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75 }}>
-          <div className="mx-auto max-w-[980px] space-y-8">
+          <div className="mx-auto w-full max-w-[1400px] space-y-8">
             <span className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold uppercase tracking-[0.22em] text-slate-700">
-              <Sparkles size={16} /> 
+              <Sparkles size={16} /> AI supplier intelligence
             </span>
-            <h1 className="text-5xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-6xl lg:text-[5.2rem] lg:leading-[1.02]">
+            <h1 className="text-5xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-6xl lg:text-[6.4rem] lg:leading-[1.02]">
               Know your supplier risk before it costs you.
             </h1>
-            <p className="text-xl leading-9 text-slate-600 sm:text-2xl">
+            <p className="mx-auto max-w-[1000px] text-xl leading-9 text-slate-600 sm:text-2xl">
               A modern desktop experience for predicting supplier issues, surfacing risk, and making decisions with confidence.
             </p>
-            <div className="mx-auto flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <a href="#demo" className="gradient-button text-base">
-                Check Supplier Risk <ArrowRight size={18} />
-              </a>
-              <a href="#features" className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-7 py-4 font-semibold text-slate-950 transition hover:-translate-y-0.5">
-                View Features
-              </a>
-            </div>
           </div>
         </motion.div>
 
@@ -165,6 +142,5 @@ export function Hero() {
         </motion.div>
       </div>
     </section>
-    </>
   );
 }
