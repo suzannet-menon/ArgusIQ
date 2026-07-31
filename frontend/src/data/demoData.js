@@ -1,5 +1,3 @@
-// src/data/demoData.js
-
 export const supplier = {
   id: "SUP-847",
   name: "Nova Manufacturing Ltd.",
