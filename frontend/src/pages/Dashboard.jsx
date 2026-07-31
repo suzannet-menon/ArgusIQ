@@ -35,7 +35,6 @@ export default function Dashboard() {
         <div className="text-lg font-extrabold tracking-tight">
           Argus<span className="text-amber-400">IQ</span>
         </div>
-        <div className="text-xs text-slate-400">AI-Powered Supplier Risk Intelligence</div>
       </header>
 
       <nav className="bg-slate-950 flex gap-1 px-6 overflow-x-auto">
