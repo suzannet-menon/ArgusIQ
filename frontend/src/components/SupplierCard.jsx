@@ -2,7 +2,7 @@ import { Building2, MapPin, TrendingUp, TrendingDown } from "lucide-react";
 import GlassCard from "./GlassCard";
 import { supplier } from "../data/demoData";
 
-// This is the one card that keeps the icon-in-a-box treatment — it's the
+// This is the one card that keeps the icon-in-a-box treatment  it's the
 // "identity" card for the whole mockup, so it earns the emphasis. Every
 // other card in this set drops the box (see SignalGrid, RiskChart, etc.)
 // so the repetition doesn't compound across all six.

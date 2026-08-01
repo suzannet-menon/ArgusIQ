@@ -7,13 +7,13 @@ export default function DashboardOverview({ onSelectSupplier }) {
   const [error, setError] = useState(null);
 
   // useEffect with an empty [] dependency array = "run once, when this
-  // component first mounts" — the React equivalent of the vanilla JS
+  // component first mounts"  the React equivalent of the vanilla JS
   // `loadDashboard()` call that ran at the bottom of the script.
   useEffect(() => {
     api.portfolio().then(setData).catch((err) => setError(err.message));
   }, []);
 
-  if (error) return <div className="text-red-600 p-6">Couldn't load portfolio — {error}</div>;
+  if (error) return <div className="text-red-600 p-6">Couldn't load portfolio  {error}</div>;
   if (!data) return <div className="text-slate-500 p-6">Loading…</div>;
 
   const { summary, suppliers } = data;
@@ -42,7 +42,7 @@ export default function DashboardOverview({ onSelectSupplier }) {
                 <th className="py-2 px-3">Location</th>
                 <th className="py-2 px-3">SRS</th>
                 <th className="py-2 px-3">Trend</th>
-                <th className="py-2 px-3">14d Forecast</th>
+                <th className="py-2 px-3">14days Forecast</th>
                 <th className="py-2 px-3">Top Risk Driver</th>
                 <th className="py-2 px-3">Anomaly</th>
               </tr>
@@ -70,7 +70,7 @@ export default function DashboardOverview({ onSelectSupplier }) {
                   </td>
                   <td className="py-3 px-3">{s.forecast_14d}</td>
                   <td className="py-3 px-3">
-                    {s.top_driver ? `${s.top_driver.dimension} — ${s.top_driver.key_signal}` : "—"}
+                    {s.top_driver ? `${s.top_driver.dimension}  ${s.top_driver.key_signal}` : ""}
                   </td>
                   <td className="py-3 px-3">
                     <AnomalyFlag triggered={s.anomaly} reason={s.anomaly_reason} />

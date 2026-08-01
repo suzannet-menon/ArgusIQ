@@ -20,11 +20,11 @@ export function RiskBadge({ srs, band, color }) {
 export function TrendArrow({ trend }) {
   if (trend === "improving") return <span className="font-bold text-emerald-600">▲</span>;
   if (trend === "declining") return <span className="font-bold text-red-600">▼</span>;
-  return <span className="font-bold text-slate-400">●</span>;
+  return <span className="font-bold text-slate-400"></span>;
 }
 
 export function AnomalyFlag({ triggered, reason }) {
-  if (!triggered) return <span className="text-slate-400">—</span>;
+  if (!triggered) return <span className="text-slate-400"></span>;
   return (
     <span className="inline-flex items-center gap-1 text-red-600 font-semibold text-xs" title={reason || "Anomaly detected"}>
       ⚠ {reason || "Anomaly"}

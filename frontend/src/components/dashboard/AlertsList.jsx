@@ -10,7 +10,7 @@ export default function AlertsList({ onSelectSupplier }) {
     api.alerts().then(setData).catch((err) => setError(err.message));
   }, []);
 
-  if (error) return <div className="text-red-600 p-6">Couldn't load alerts — {error}</div>;
+  if (error) return <div className="text-red-600 p-6">Couldn't load alerts  {error}</div>;
   if (!data) return <div className="text-slate-500 p-6">Loading…</div>;
   if (data.alert_count === 0) {
     return (
@@ -54,7 +54,7 @@ export default function AlertsList({ onSelectSupplier }) {
                   <RiskBadge srs={a.srs} band={a.risk_band} color={a.color} />
                 </td>
                 <td className="py-3 px-3">{a.anomaly_message}</td>
-                <td className="py-3 px-3">{a.days_to_high_risk ?? "—"}</td>
+                <td className="py-3 px-3">{a.days_to_high_risk ?? ""}</td>
                 <td className="py-3 px-3">
                   <TrendArrow trend={a.trend} /> {a.trend}
                 </td>

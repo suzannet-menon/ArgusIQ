@@ -29,7 +29,7 @@ export default function Dashboard() {
     // on the OUTER wrapper (not each child) so the sidebar's dark background
     // extends the full page height even if content is short.
     <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      {/* SIDEBAR — vertical, fixed width, sits for the full height */}
+      {/* SIDEBAR  vertical, fixed width, sits for the full height */}
       <aside className="w-60 shrink-0 bg-slate-950 text-white flex flex-col">
         <div className="px-5 py-5 border-b border-white/10">
           <div className="text-lg font-extrabold tracking-tight">
@@ -60,7 +60,7 @@ export default function Dashboard() {
         </nav>
       </aside>
 
-      {/* MAIN CONTENT — takes all remaining width. No max-w cap here, only
+      {/* MAIN CONTENT  takes all remaining width. No max-w cap here, only
           generous padding, so tables/cards can actually use the full screen
           instead of being squeezed into a centered 6xl column. */}
       <main className="flex-1 min-w-0 p-6 lg:p-8">

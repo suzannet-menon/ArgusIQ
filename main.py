@@ -8,7 +8,7 @@ from api.routes import router
 
 app = FastAPI(
     title="ArgusIQ API",
-    description="AI-Powered Supplier Risk Intelligence — Gappy AI Hackathon 2026",
+    description="AI-Powered Supplier Risk Intelligence",
     version="1.0.0",
 )
 

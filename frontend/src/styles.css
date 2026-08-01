@@ -19,7 +19,7 @@ html {
 body {
   margin: 0;
   width: 100%;
-  /* One quiet warm tint instead of the previous teal/sky dual-glow —
+  /* One quiet warm tint instead of the previous teal/sky dual-glow 
      restraint over decoration. */
   background:
     radial-gradient(circle at top left, rgba(245, 158, 11, 0.06), transparent 38rem),
@@ -52,7 +52,7 @@ body {
   }
 
   .gradient-button {
-    /* Solid amber, not a gradient — one confident color reads more
+    /* Solid amber, not a gradient  one confident color reads more
        intentional than a 3-stop gradient on every CTA. */
     @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary px-7 py-4 font-bold text-slate-950 shadow-lg shadow-primary/25 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-600;
   }

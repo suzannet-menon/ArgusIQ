@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Factory, Radar, BrainCircuit, TrendingUp, BellRing, ShieldCheck } from "lucide-react";
 
 // This IS a genuine sequence (each stage leads to the next), so numbered
-// steps are earning their place here — unlike the removed numbering in
+// steps are earning their place here  unlike the removed numbering in
 // Problem.jsx.
 const steps = [
   { icon: Factory, title: "Healthy supplier", subtitle: "Everything appears normal", description: "Active purchase orders, valid compliance, stable delivery history." },

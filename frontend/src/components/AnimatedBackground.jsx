@@ -1,5 +1,5 @@
 // The previous version was 3 floating blurred orbs + a 40s rotating gradient
-// ring + a grid overlay + a noise overlay, all animating simultaneously —
+// ring + a grid overlay + a noise overlay, all animating simultaneously 
 // close to the single most common "AI-generated dashboard" tell. Cut to one
 // quiet, mostly-static glow. If a section still feels flat without it, the
 // fix is better content/type contrast, not more ambient motion.

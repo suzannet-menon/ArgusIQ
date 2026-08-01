@@ -9,7 +9,7 @@ const inputs = [
 ];
 
 // These three steps ARE a real sequence (you literally do them in order),
-// so numbering here is legitimate — unlike Problem.jsx's three items.
+// so numbering here is legitimate  unlike Problem.jsx's three items.
 const steps = ["Add supplier", "Analyze signals", "Get risk score"];
 
 export function Solution() {
@@ -22,7 +22,7 @@ export function Solution() {
             One clear score from every supplier signal
           </h2>
           <p className="mx-auto mt-6 max-w-[1000px] text-xl leading-9 text-muted sm:text-2xl">
-            Operational, financial, compliance, and sentiment data — weighted and combined into
+            Operational, financial, compliance, and sentiment data  weighted and combined into
             one 0-100 supplier risk score.
           </p>
         </div>
@@ -49,7 +49,7 @@ export function Solution() {
           </div>
 
           {/* Previous version showed TWO different numbers (67 and 74) for
-              the same output — confusing, looked like a copy-paste error.
+              the same output  confusing, looked like a copy-paste error.
               One number, with its risk band, is the actual output shape. */}
           <div className="rounded-lg bg-slate-50 px-8 py-10 sm:px-10 sm:py-12">
             <p className="text-sm uppercase tracking-[0.2em] text-muted">Output</p>
@@ -63,7 +63,7 @@ export function Solution() {
               </span>
             </div>
             <p className="mt-6 text-lg leading-8 text-muted">
-              One score combines every signal into a clear, decision-ready surface — with the
+              One score combines every signal into a clear, decision-ready surface  with the
               reasoning behind it, not a black box.
             </p>
           </div>

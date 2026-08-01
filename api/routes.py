@@ -115,7 +115,7 @@ def get_alerts():
                 "anomaly_reason": result.get("anomaly_reason"),
                 "anomaly_message": (
                     result.get("anomaly_reason") or
-                    f"Score at {result['srs']} — {result['risk_band']}"
+                    f"Score at {result['srs']}  {result['risk_band']}"
                 ),
                 "forecast_14d":   fc["forecast_14_days"],
                 "days_to_high_risk": fc.get("days_to_high_risk"),

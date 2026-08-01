@@ -82,7 +82,7 @@ export function Hero() {
                   One score. Every supplier signal.
                 </p>
                 <p className="max-w-[560px] text-base leading-8 text-slate-300 sm:text-lg">
-                  10 suppliers monitored across categories — 2 critical, 3 high risk, 3 moderate,
+                  10 suppliers monitored across categories  2 critical, 3 high risk, 3 moderate,
                   2 low risk, updated on every request.
                 </p>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -101,7 +101,7 @@ export function Hero() {
                 <div className="flex items-center justify-between gap-4 text-sm text-slate-300">
                   <div className="text-left">
                     <p className="uppercase tracking-[0.2em]">Active alert</p>
-                    <p className="mt-2 font-display text-xl font-semibold text-white">Sharma Textiles — High Risk</p>
+                    <p className="mt-2 font-display text-xl font-semibold text-white">Sharma Textiles  High Risk</p>
                   </div>
                   <span className="inline-flex items-center gap-2 rounded-md bg-amber-500/15 px-3 py-2 text-sm font-semibold text-amber-300">
                     <Bell size={16} /> 47

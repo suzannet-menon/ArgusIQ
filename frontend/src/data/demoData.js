@@ -1,5 +1,5 @@
 // Grounded in the ACTUAL scoring engine's output shape and one real supplier
-// from scoring/mock_data.py (Sharma Textiles Pvt Ltd, SRS 47 — HIGH RISK,
+// from scoring/mock_data.py (Sharma Textiles Pvt Ltd, SRS 47  HIGH RISK,
 // declining trend). This ties the marketing demo to the real product instead
 // of inventing generic placeholder numbers.
 

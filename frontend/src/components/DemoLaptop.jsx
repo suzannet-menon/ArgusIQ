@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import DemoScreen from "./DemoScreen";
 
 // Previous version: an infinitely rotating 40s gradient ring, a continuous
-// up-down float loop, scroll-driven 3D tilt, AND a pulsing glass reflection —
+// up-down float loop, scroll-driven 3D tilt, AND a pulsing glass reflection 
 // four simultaneous animations on one element. Cut to a single one-time
 // entrance; the laptop just... sits there, which reads as more confident.
 export default function DemoLaptop() {

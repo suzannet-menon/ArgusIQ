@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api } from "../../lib/api.js";
 
 const SUGGESTIONS = [
+  "Examples →",
   "Which suppliers are most urgent right now?",
   "Compare Anand Textiles vs Sharma Exports",
   "Which suppliers will decline in the next 14 days?",
@@ -27,7 +28,7 @@ export default function ChatTab() {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { text: "Couldn't reach the assistant — " + err.message, who: "bot" },
+        { text: "Couldn't reach the assistant  " + err.message, who: "bot" },
       ]);
     } finally {
       setSending(false);
@@ -37,7 +38,7 @@ export default function ChatTab() {
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
       <h2 className="text-sm font-bold mb-4">
-        Risk Assistant <span className="text-xs font-normal text-slate-500">powered by the /chat endpoint</span>
+        Risk Assistant <span className="text-xs font-normal text-slate-500"></span>
       </h2>
 
       <div className="flex gap-2 flex-wrap mb-4">
@@ -56,7 +57,7 @@ export default function ChatTab() {
       <div className="h-80 overflow-y-auto bg-slate-50 border border-slate-200 rounded p-4 mb-3 flex flex-col gap-2">
         {messages.length === 0 && (
           <div className="h-full flex items-center justify-center text-center text-slate-400 text-sm px-10">
-            Ask about any supplier, risk trend, or comparison — or tap a suggestion above.
+            Ask about any supplier, risk trend, or comparison  or tap a suggestion above.
           </div>
         )}
         {messages.map((m, i) => (

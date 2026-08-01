@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-// Toned down from y:28 slide + fade to a smaller, quicker fade — scroll
+// Toned down from y:28 slide + fade to a smaller, quicker fade  scroll
 // reveals should feel like the page settling into place, not performing.
 export function SectionMotion({ children, className = "", delay = 0 }) {
   return (

@@ -10,7 +10,7 @@ export default function SuppliersList({ onSelectSupplier }) {
     api.portfolio().then(setData).catch((err) => setError(err.message));
   }, []);
 
-  if (error) return <div className="text-red-600 p-6">Couldn't load portfolio — {error}</div>;
+  if (error) return <div className="text-red-600 p-6">Couldn't load portfolio  {error}</div>;
   if (!data) return <div className="text-slate-500 p-6">Loading…</div>;
 
   const { suppliers } = data;

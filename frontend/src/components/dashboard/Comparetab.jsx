@@ -49,7 +49,7 @@ export default function CompareTab() {
         </button>
       </div>
 
-      {error && <div className="text-red-600 text-sm mb-4">Compare failed — {error}</div>}
+      {error && <div className="text-red-600 text-sm mb-4">Compare failed  {error}</div>}
 
       {!result && !error && (
         <div className="text-center py-8">

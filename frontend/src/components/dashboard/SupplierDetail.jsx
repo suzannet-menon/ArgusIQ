@@ -22,9 +22,9 @@ export default function SupplierDetail({ supplierId }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
-  // supplierId is a dependency here — when the user clicks a DIFFERENT
+  // supplierId is a dependency here  when the user clicks a DIFFERENT
   // supplier row, this effect re-runs and refetches. Compare this to
-  // DashboardOverview's `[]` — that one only ever needed to run once.
+  // DashboardOverview's `[]`  that one only ever needed to run once.
   useEffect(() => {
     setData(null);
     setError(null);
@@ -35,7 +35,7 @@ export default function SupplierDetail({ supplierId }) {
   if (!data) return <div className="text-slate-500 p-6">Loading {supplierId}…</div>;
 
   // Recharts wants ONE array of data points, each with keys matching the
-  // <Line dataKey="..."> below — unlike Chart.js's two separate datasets,
+  // <Line dataKey="..."> below  unlike Chart.js's two separate datasets,
   // here "actual" and "forecast" live as two possible keys on the same points.
   const history = data.score_history_full.map((p) => ({ day: `Day ${p.day}`, actual: p.srs }));
   const n = history.length;
@@ -48,7 +48,7 @@ export default function SupplierDetail({ supplierId }) {
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm mt-4">
       <h2 className="text-sm font-bold mb-4">
-        {data.supplier_name} ({data.supplier_id}) — {data.category}, {data.location}
+        {data.supplier_name} ({data.supplier_id})  {data.category}, {data.location}
       </h2>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -90,7 +90,7 @@ export default function SupplierDetail({ supplierId }) {
           <ul className="text-xs divide-y divide-slate-100">
             {data.top_risk_drivers.map((d, i) => (
               <li key={i} className="flex justify-between py-2">
-                <span>{d.dimension} — {d.key_signal}</span>
+                <span>{d.dimension}  {d.key_signal}</span>
                 <strong>{d.signal_score}</strong>
               </li>
             ))}
