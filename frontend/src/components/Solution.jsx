@@ -51,15 +51,17 @@ export function Solution() {
           {/* Previous version showed TWO different numbers (67 and 74) for
               the same output  confusing, looked like a copy-paste error.
               One number, with its risk band, is the actual output shape. */}
-          <div className="rounded-lg bg-slate-50 px-8 py-10 sm:px-10 sm:py-12">
+          <div className="rounded-lg bg-slate-50 px-8 py-10 sm:px-15 sm:py-12">
             <p className="text-sm uppercase tracking-[0.2em] text-muted">Output</p>
-            <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mt-6 flex flex-col gap-9 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="font-display text-7xl font-semibold text-ink">47</p>
+                <div className="pt-2">
+                  <p className="font-display text-8xl font-semibold text-ink">47</p>
+                </div>
                 <p className="mt-3 text-xl font-semibold text-orange-600">High risk</p>
               </div>
               <span className="inline-flex items-center rounded-full bg-orange-100 px-5 py-3 text-sm font-semibold text-orange-700">
-                Declining · forecast 38 in 14 days
+                Declining → forecast '38' in 14 days
               </span>
             </div>
             <p className="mt-6 text-lg leading-8 text-muted">
