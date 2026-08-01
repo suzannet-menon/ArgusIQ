@@ -27,7 +27,7 @@ export default function AlertsList({ onSelectSupplier }) {
         <span className="text-xs font-normal text-slate-500">high risk, critical, or anomaly-flagged</span>
       </h2>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[640px]">
+        <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs uppercase text-slate-500 border-b border-slate-300">
               <th className="py-2 px-3">Supplier</th>

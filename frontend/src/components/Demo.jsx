@@ -14,14 +14,11 @@ export default function Demo() {
           className="mx-auto max-w-5xl text-center"
         >
           <p className="eyebrow">How it works</p>
-          <h2 className="mt-6 font-display text-5xl lg:text-7xl font-bold tracking-tight text-ink">
-            Predict supplier risks
-            <br />
-            before they happen.
+          <h2 className="mt-8 font-display text-9xl lg:text-5xl font-bold tracking-tight text-ink">
+            Predict supplier risks before they happen
           </h2>
-          <p className="mx-auto mt-8 max-w-3xl text-xl leading-9 text-muted">
-            ArgusIQ continuously monitors supplier operations, financial health, compliance, and
-            public sentiment to generate an explainable AI-powered Supplier Risk Score.
+          <p className="mx-auto mt-5 max-w-6xl text-xl leading-9 text-muted">
+            ArgusIQ continuously monitors supplier operations, financial health, compliance, and public sentiment to generate an explainable AI-powered Supplier Risk Score.
           </p>
         </motion.div>
 

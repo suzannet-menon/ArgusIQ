@@ -9,6 +9,7 @@ import { Solution } from "./components/Solution.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import SupplierTicker from "./components/SupplierTicker.jsx";
 
 function Landing() {
   return (

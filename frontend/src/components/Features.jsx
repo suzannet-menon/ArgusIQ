@@ -10,12 +10,12 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-28 bg-white">
+    <section id="features" className="py-28 bg-canvas">
       <div className="section-shell">
         <div className="mx-auto max-w-[1300px] text-center">
           <p className="eyebrow">Features</p>
-          <h2 className="mt-4 font-display text-5xl font-semibold tracking-tight text-ink sm:text-6xl lg:text-7xl">
-            Everything needed for proactive supplier decisions.
+          <h2 className="mt-4 font-display text-5xl font-semibold tracking-tight text-ink sm:text-6xl lg:text-5xl">
+            Everything needed for proactive supplier decisions
           </h2>
         </div>
 
@@ -24,7 +24,7 @@ export function Features() {
             <SectionMotion
               key={feature.title}
               delay={index * 0.06}
-              className="rounded-lg border border-slate-200 bg-slate-50 px-8 py-10 text-left"
+              className="rounded-lg border border-slate-200 bg-slate-50 px-8 py-10 text-left transition-all duration-200 hover:-translate-y-1 hover:border-amber-200 hover:bg-white hover:shadow-card"
             >
               <feature.icon className="text-primary" size={28} />
               <h3 className="mt-7 font-display text-2xl font-semibold tracking-tight text-ink">{feature.title}</h3>

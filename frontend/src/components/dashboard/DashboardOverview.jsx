@@ -9,7 +9,6 @@ export default function DashboardOverview({ onSelectSupplier }) {
   // useEffect with an empty [] dependency array = "run once, when this
   // component first mounts" — the React equivalent of the vanilla JS
   // `loadDashboard()` call that ran at the bottom of the script.
-  
   useEffect(() => {
     api.portfolio().then(setData).catch((err) => setError(err.message));
   }, []);
@@ -35,7 +34,7 @@ export default function DashboardOverview({ onSelectSupplier }) {
           <span className="text-xs font-normal text-slate-500">sorted riskiest first</span>
         </h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
+          <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase text-slate-500 border-b border-slate-300">
                 <th className="py-2 px-3">Supplier</th>

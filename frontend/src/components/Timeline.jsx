@@ -15,7 +15,7 @@ const steps = [
 
 export default function Timeline() {
   return (
-    <section className="relative py-20">
+    <section id="journey" className="relative py-20 scroll-mt-24">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -24,12 +24,10 @@ export default function Timeline() {
         className="mx-auto mb-16 max-w-4xl text-center"
       >
         <p className="eyebrow">Product journey</p>
-        <h2 className="mt-5 font-display text-5xl font-bold tracking-tight text-ink lg:text-6xl">
-          From hidden supplier risks
-          <br />
-          to proactive action.
+        <h2 className="mt-5 font-display text-9xl font-bold tracking-tight text-ink lg:text-5xl">
+          From supplier risks to proactive action
         </h2>
-        <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-muted">
+        <p className="mx-auto mt-7 max-w-9xl text-xl leading-9 text-muted">
           Every supplier is continuously monitored and turned into one explainable risk score.
         </p>
       </motion.div>
@@ -44,7 +42,7 @@ export default function Timeline() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7 shadow-card"
+              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-amber-200 hover:shadow-lg"
             >
               <div className="flex items-center justify-between">
                 <Icon size={26} className="text-primary" />

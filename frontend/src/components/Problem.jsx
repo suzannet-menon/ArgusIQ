@@ -13,23 +13,20 @@ export function Problem() {
       <div className="section-shell">
         <div className="mx-auto max-w-[1300px] text-center">
           <p className="eyebrow">The problem</p>
-          <h2 className="mt-4 font-display text-5xl font-semibold tracking-tight text-ink sm:text-6xl lg:text-7xl">
-            Supplier risk is usually visible after the damage.
+          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink sm:text-9xl lg:text-5xl">
+            Supplier risk is usually visible after the damage
           </h2>
-          <p className="mt-6 text-xl leading-9 text-muted sm:text-2xl">
+          <p className="mt-9 text-xl leading-5 text-muted sm:text-1xl">
             Supply teams need early signals, not post-incident spreadsheets.
           </p>
         </div>
 
-        {/* Removed the previous 01/02/03 numbering — these three issues
-            aren't a sequence, so numbering them implied an order that
-            wasn't real. */}
         <div className="mt-16 grid gap-6 lg:grid-cols-3">
           {problems.map((item, index) => (
             <SectionMotion
               key={item.title}
               delay={index * 0.06}
-              className="rounded-lg border border-slate-200 bg-white px-8 py-10"
+              className="rounded-lg border border-slate-200 bg-white px-8 py-10 transition-all duration-200 hover:-translate-y-1 hover:border-amber-200 hover:shadow-card"
             >
               <item.icon className="text-primary" size={28} />
               <h3 className="mt-8 font-display text-2xl font-semibold tracking-tight text-ink">{item.title}</h3>
@@ -43,12 +40,9 @@ export function Problem() {
             <div className="flex items-center gap-4">
               <AlertTriangle className="text-orange-600" size={32} />
               <p className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                60% of sellers face supplier issues annually.
+                60% of sellers face supplier issues annually
               </p>
             </div>
-            <span className="inline-flex w-fit rounded-md bg-orange-100 px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-orange-700">
-              Annual seller risk signal
-            </span>
           </div>
         </SectionMotion>
       </div>

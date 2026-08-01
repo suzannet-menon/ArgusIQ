@@ -13,14 +13,15 @@ const trend = [
 const navItems = [
   { label: "Problem", href: "#problem" },
   { label: "Solution", href: "#solution" },
-  { label: "Demo", href: "#demo" },
+  { label: "How it works", href: "#demo" },
+  {label: "Product journey", href: "#journey"},
   { label: "Features", href: "#features" },
 ];
 
 export function Hero() {
   return (
     <section id="hero" className="relative overflow-hidden bg-canvas text-ink">
-      <nav className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-canvas/90 backdrop-blur-md">
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-amber-100 bg-gradient-to-r from-amber-50 via-white to-white backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-6 px-5 py-4 sm:px-8 lg:px-12 2xl:px-16">
           <a href="#hero" className="flex items-center gap-3 font-display text-lg font-semibold tracking-tight text-ink">
             <span className="grid h-9 w-9 place-items-center rounded-md bg-slate-950 text-primary">
@@ -29,7 +30,7 @@ export function Hero() {
             ArgusIQ
           </a>
 
-          <div className="hidden items-center justify-center gap-4 text-sm font-semibold text-muted md:flex">
+          <div className="hidden items-center justify-center gap-9 text-sm font-semibold text-muted md:flex">
             {navItems.map((item) => (
               <a key={item.href} href={item.href} className="transition hover:text-ink">
                 {item.label}
@@ -38,7 +39,10 @@ export function Hero() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link to="/login" className="hidden text-sm font-semibold text-slate-700 transition hover:text-ink sm:inline-flex">
+            <Link
+              to="/login"
+              className="hidden rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-ink sm:inline-flex"
+            >
               Log in
             </Link>
             <Link
@@ -47,20 +51,19 @@ export function Hero() {
             >
               Sign up
             </Link>
-
           </div>
         </div>
       </nav>
 
       <div className="section-shell relative mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-14 pb-20 pt-[120px] text-center">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <div className="mx-auto w-full max-w-[1300px] space-y-7">
-            <h1 className="font-display text-5xl font-semibold leading-tight tracking-tight text-ink sm:text-6xl lg:text-[6rem] lg:leading-[1.02]">
-              Know your supplier risk before it costs you.
+          <div className="mx-auto w-full max-w-[2000px] space-y-5">
+            <h1 className="font-display text-5xl font-semibold leading-tight tracking-tight text-ink sm:text-6xl lg:text-[4rem] lg:leading-[1.02]">
+              Know your supplier risk before it costs you
             </h1>
-            <p className="mx-auto max-w-[880px] text-xl leading-9 text-muted sm:text-2xl">
+            <p className="mx-auto max-w-[1000px] text-xl leading-9 text-muted sm:text-2xl">
               ArgusIQ scores every supplier 0-100 across operations, finances, compliance, and
-              sentiment and forecasts where they're headed 14 days out.
+              sentiment  and forecasts where they're headed 14 days out
             </p>
           </div>
         </motion.div>

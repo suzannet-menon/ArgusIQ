@@ -18,8 +18,8 @@ export function Solution() {
       <div className="section-shell relative">
         <div className="mx-auto max-w-[1300px] text-center">
           <p className="eyebrow">The solution</p>
-          <h2 className="mt-4 font-display text-5xl font-semibold tracking-tight text-ink sm:text-6xl lg:text-7xl">
-            One clear score from every supplier signal.
+          <h2 className="mt-5 font-display text-6xl font-semibold tracking-tight text-ink sm:text-6xl lg:text-5xl">
+            One clear score from every supplier signal
           </h2>
           <p className="mx-auto mt-6 max-w-[1000px] text-xl leading-9 text-muted sm:text-2xl">
             Operational, financial, compliance, and sentiment data — weighted and combined into
@@ -35,7 +35,7 @@ export function Solution() {
                 <motion.div
                   key={item.label}
                   whileHover={{ y: -2 }}
-                  className="rounded-lg border border-white/10 bg-white/5 p-6"
+                  className="rounded-lg border border-white/10 bg-white/5 p-6 transition-colors duration-200 hover:border-primary/30"
                 >
                   <item.icon className="text-primary" size={24} />
                   <p className="mt-5 font-display text-xl font-semibold tracking-tight text-white">{item.label}</p>
