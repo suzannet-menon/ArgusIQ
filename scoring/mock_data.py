@@ -1,5 +1,5 @@
 """
-ArgusIQ — Mock Supplier Data
+ArgusIQ  Mock Supplier Data
 10 realistic Indian suppliers with pre-calibrated risk profiles.
 Distribution: 2 CRITICAL, 3 HIGH RISK, 3 MODERATE, 2 LOW RISK
 """
@@ -27,7 +27,7 @@ SUPPLIERS = [
             "bank_stability": False
         },
         "compliance": {
-            "bis_fssai_valid": False,   # FSSAI licence EXPIRED — anomaly trigger
+            "bis_fssai_valid": False,   # FSSAI licence EXPIRED  anomaly trigger
             "gst_active": True,
             "regulatory_notices": 4,
             "licence_expiry_days": -5   # already expired
@@ -64,7 +64,7 @@ SUPPLIERS = [
         },
         "compliance": {
             "bis_fssai_valid": False,   # Compliance collapse
-            "gst_active": False,        # GST inactive — double anomaly
+            "gst_active": False,        # GST inactive  double anomaly
             "regulatory_notices": 5,
             "licence_expiry_days": -12
         },

@@ -1,7 +1,7 @@
 """
 ArgusIQ 14-Day Risk Forecast
 Uses simple linear regression on score history.
-No external ML library needed — pure Python math.
+No external ML library needed  pure Python math.
 """
 
 

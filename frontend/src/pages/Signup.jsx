@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,7 +35,7 @@ export default function Signup() {
 
     setSuccess(true);
     setTimeout(() => {
-      window.location.href = "/dashboard.html";
+      navigate("/dashboard");
     }, 1000);
   }
 

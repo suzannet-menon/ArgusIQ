@@ -23,7 +23,7 @@ def normalize(value, min_val, max_val, higher_is_better=True):
 
 
 def score_operational(op: dict) -> dict:
-    """Operational Health — 35% of SRS"""
+    """Operational Health  35% of SRS"""
     s_delivery  = normalize(op["on_time_delivery"], 40, 100)
     s_delay     = normalize(op["avg_dispatch_delay"], 0, 7, higher_is_better=False)
     s_fill      = normalize(op["order_fill_rate"], 50, 100)
@@ -52,7 +52,7 @@ def score_operational(op: dict) -> dict:
 
 
 def score_financial(fin: dict) -> dict:
-    """Financial Stability — 30% of SRS"""
+    """Financial Stability  30% of SRS"""
     s_gst_reg   = normalize(fin["gst_filing_regularity"], 20, 100)
     s_gst_days  = normalize(fin["days_since_gst_return"], 0, 60, higher_is_better=False)
     s_payment   = normalize(fin["payment_delay_history"], 20, 100)
@@ -80,7 +80,7 @@ def score_financial(fin: dict) -> dict:
 
 
 def score_compliance(comp: dict) -> dict:
-    """Compliance & Regulatory — 20% of SRS"""
+    """Compliance & Regulatory  20% of SRS"""
     s_bis       = 90.0 if comp["bis_fssai_valid"] else 5.0
     s_gst_reg   = 95.0 if comp["gst_active"] else 5.0
     s_notices   = normalize(comp["regulatory_notices"], 0, 5, higher_is_better=False)
@@ -118,7 +118,7 @@ def score_compliance(comp: dict) -> dict:
 
 
 def score_sentiment(sent: dict) -> dict:
-    """Sentiment & Reputation — 15% of SRS"""
+    """Sentiment & Reputation  15% of SRS"""
     s_news      = normalize(sent["avg_sentiment"], -1.0, 1.0)
     s_social    = normalize(sent["social_polarity"], -1.0, 1.0)
     s_reviews   = normalize(sent["review_score"], 1.0, 5.0)
@@ -147,7 +147,7 @@ def score_sentiment(sent: dict) -> dict:
 
 def compute_srs(supplier: dict) -> dict:
     """
-    MASTER FUNCTION — computes full ArgusIQ Supplier Risk Score.
+    MASTER FUNCTION  computes full ArgusIQ Supplier Risk Score.
     Call this with any supplier dict from mock_data.py.
     """
     op   = score_operational(supplier["operational"])
@@ -242,13 +242,13 @@ def _build_explanation(name, srs, band, op, fin, comp, sent,
                         anomaly, anomaly_reason) -> str:
     parts = []
     if anomaly and anomaly_reason:
-        parts.append(f"⚠️ ANOMALY: {anomaly_reason}.")
+        parts.append(f" ANOMALY: {anomaly_reason}.")
     if op["score"] < 55:
-        parts.append(f"Operational performance is weak — {op['weakest_signal']} is the primary issue.")
+        parts.append(f"Operational performance is weak  {op['weakest_signal']} is the primary issue.")
     if fin["score"] < 55:
-        parts.append(f"Financial health is stressed — particularly {fin['weakest_signal']}.")
+        parts.append(f"Financial health is stressed  particularly {fin['weakest_signal']}.")
     if comp["score"] < 55:
-        parts.append(f"Compliance risk is high — {comp['weakest_signal']} needs urgent attention.")
+        parts.append(f"Compliance risk is high  {comp['weakest_signal']} needs urgent attention.")
     if sent["score"] < 45:
         parts.append("Negative market sentiment and buyer complaints are elevated.")
     if not parts:

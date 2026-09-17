@@ -21,13 +21,13 @@ FALLBACKS = {
     ),
     "delhi spice": (
         "Delhi Spice Co. is CRITICAL at 16/100. "
-        "Their FSSAI food licence expired 5 days ago — this is a compliance collapse. "
+        "Their FSSAI food licence expired 5 days ago this is a compliance collapse. "
         "They have 4 pending regulatory notices and their GST filing regularity has dropped to 30%. "
         "Immediate action required: suspend all orders and activate a backup food supplier."
     ),
     "worst": (
-        "Your two most urgent suppliers are Delhi Spice Co. (16 — CRITICAL, FSSAI expired) "
-        "and Sunrise Cosmetics (18 — CRITICAL, GST inactive). "
+        "Your two most urgent suppliers are Delhi Spice Co. (16 CRITICAL, FSSAI expired) "
+        "and Sunrise Cosmetics (18 CRITICAL, GST inactive). "
         "Both need immediate action. Stop placing orders and find alternatives today."
     ),
     "compare": (
@@ -40,14 +40,14 @@ FALLBACKS = {
         "Three suppliers are projected to deteriorate in 14 days: "
         "Sharma Textiles (47 → ~38, risk of hitting CRITICAL), "
         "Mehta Garments (32 → ~26, approaching CRITICAL), "
-        "and Delhi Spice Co. (16 — already CRITICAL and declining). "
+        "and Delhi Spice Co. (16 already CRITICAL and declining). "
         "Prioritise Sharma Textiles and Mehta Garments for immediate review."
     ),
     "sunrise": (
         "Sunrise Cosmetics is CRITICAL at 18/100 with a double compliance failure: "
         "both their BIS licence and GST registration are inactive. "
         "They have 5 pending regulatory notices. "
-        "Stop all orders immediately and escalate to management. No backup exists in Beauty — you need to source a new supplier."
+        "Stop all orders immediately and escalate to management. No backup exists in Beauty  you need to source a new supplier."
     ),
 }
 
@@ -81,12 +81,12 @@ def build_context(supplier_id: str = None) -> str:
         return (
             f"SUPPLIER DETAIL\n"
             f"Name: {scored['supplier_name']} | Category: {scored['category']} | Location: {scored['location']}\n"
-            f"SRS: {scored['srs']}/100 — {scored['risk_band']}\n"
+            f"SRS: {scored['srs']}/100  {scored['risk_band']}\n"
             f"Sub-scores: Operational {scored['sub_scores']['operational']} | "
             f"Financial {scored['sub_scores']['financial']} | "
             f"Compliance {scored['sub_scores']['compliance']} | "
             f"Sentiment {scored['sub_scores']['sentiment']}\n"
-            f"Anomaly: {scored['anomaly_triggered']} — {scored.get('anomaly_reason', 'none')}\n"
+            f"Anomaly: {scored['anomaly_triggered']}  {scored.get('anomaly_reason', 'none')}\n"
             f"Forecast: {fc['forecast_14_days']} in 14 days | Trend: {fc['trend']}\n"
             f"Days to HIGH RISK: {fc['days_to_high_risk'] or 'N/A'}\n"
             f"Explanation: {scored['explanation']}\n"
@@ -98,10 +98,10 @@ def build_context(supplier_id: str = None) -> str:
     lines = ["FULL PORTFOLIO (sorted by risk, lowest first):"]
     for s in all_scored:
         fc = forecast_14_days(s["score_history"])
-        anomaly_note = f" ⚠️ {s['anomaly_reason']}" if s["anomaly_triggered"] else ""
+        anomaly_note = f" {s['anomaly_reason']}" if s["anomaly_triggered"] else ""
         lines.append(
             f"  {s['supplier_name']} ({s['category']}, {s['location']}): "
-            f"SRS {s['srs']} — {s['risk_band']}{anomaly_note} | "
+            f"SRS {s['srs']}  {s['risk_band']}{anomaly_note} | "
             f"14d forecast: {fc['forecast_14_days']}"
         )
     return "\n".join(lines)
@@ -110,7 +110,7 @@ def build_context(supplier_id: str = None) -> str:
 def chat_with_agent(message: str, supplier_id: str = None) -> str:
     """
     Main chat function. Tries Claude API first, falls back to pre-scripted answers.
-    Always returns a string — never crashes.
+    Always returns a string  never crashes.
     """
     # Try fallback first for known demo questions (instant, no API needed)
     fallback = _get_fallback(message)
@@ -124,9 +124,9 @@ def chat_with_agent(message: str, supplier_id: str = None) -> str:
     context = build_context(supplier_id)
 
     system_prompt = f"""You are ArgusIQ AI, an expert supplier risk analyst for Indian e-commerce.
-Answer in exactly 3-5 sentences. Be specific — always mention actual SRS scores and numbers.
+Answer in exactly 3-5 sentences. Be specific  always mention actual SRS scores and numbers.
 End every response with one clear action recommendation starting with "Recommendation:".
-Never make up data — only use the supplier data provided below.
+Never make up data  only use the supplier data provided below.
 
 {context}"""
 
@@ -150,7 +150,7 @@ Never make up data — only use the supplier data provided below.
         return response.json()["content"][0]["text"]
 
     except Exception:
-        # Silent fallback — demo never breaks
+        # Silent fallback  demo never breaks
         return fallback or (
             "I'm having trouble reaching the AI service. "
             "Please check your ANTHROPIC_API_KEY in the .env file."
