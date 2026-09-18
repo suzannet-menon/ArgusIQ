@@ -8,7 +8,7 @@ export function CTA() {
         <SectionMotion className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <span className="inline-flex items-center gap-2 rounded-md bg-white/10 px-4 py-2 text-sm font-semibold text-teal-100">
-              <ShieldCheck size={16} /> SupplyGuard
+              <ShieldCheck size={16} /> ArgusIQ
             </span>
             <h2 className="mt-8 max-w-[1400px] text-5xl font-semibold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
               Start tracking your suppliers today

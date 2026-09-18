@@ -35,7 +35,7 @@ export default function Demo() {
           </h2>
 
           <p className="mx-auto mt-8 max-w-3xl text-xl leading-9 text-slate-600 dark:text-slate-300">
-            SupplyGuard continuously monitors supplier operations,
+            ArgusIQ continuously monitors supplier operations,
             financial health, compliance and public sentiment to
             generate an explainable AI-powered Supplier Risk Score.
           </p>

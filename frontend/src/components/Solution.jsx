@@ -22,7 +22,7 @@ export function Solution() {
             One clear score from every supplier signal.
           </h2>
           <p className="mx-auto mt-6 max-w-[1100px] text-xl leading-9 text-slate-600 sm:text-2xl">
-            SupplyGuard analyzes operational, financial, compliance, and sentiment data to generate a simple 0-100 supplier risk score.
+            ArgusIQ analyzes operational, financial, compliance, and sentiment data to generate a simple 0-100 supplier risk score.
           </p>
         </div>
 

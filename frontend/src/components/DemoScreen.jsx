@@ -15,7 +15,7 @@ export default function DemoScreen() {
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
-            SupplyGuard
+            ArgusIQ
           </p>
 
           <h1 className="mt-2 text-4xl font-bold">

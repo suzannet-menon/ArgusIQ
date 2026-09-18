@@ -28,7 +28,7 @@ const steps = [
     title: "AI Explains Why",
     subtitle: "Explainable Intelligence",
     description:
-      "Instead of a black-box score, SupplyGuard highlights the exact operational, financial, compliance, and sentiment drivers behind the risk increase."
+      "Instead of a black-box score, ArgusIQ highlights the exact operational, financial, compliance, and sentiment drivers behind the risk increase."
   },
   {
     icon: TrendingUp,
@@ -73,7 +73,7 @@ export default function Timeline() {
         </h2>
 
         <p className="mx-auto mt-8 max-w-3xl text-xl leading-9 text-slate-600 dark:text-slate-400">
-          Every supplier is continuously monitored. SupplyGuard transforms
+          Every supplier is continuously monitored. ArgusIQ transforms
           thousands of fragmented signals into a single explainable AI-powered
           risk score.
         </p>

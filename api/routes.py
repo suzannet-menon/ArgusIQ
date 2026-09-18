@@ -142,8 +142,8 @@ class ChatRequest(BaseModel):
 def chat(req: ChatRequest):
     """
     Accepts a natural language question.
-    Calls Claude API with full portfolio context.
-    Falls back gracefully if API is unavailable.
+    Calls the Groq LLM API with full portfolio context.
+    Falls back gracefully if the API is unavailable.
     """
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")

@@ -102,7 +102,7 @@ export const timeline = [
   {
     title: "AI Analysis",
     description:
-      "SupplyGuard correlates operational, compliance and sentiment signals.",
+      "ArgusIQ correlates operational, compliance and sentiment signals.",
   },
   {
     title: "Forecast",
