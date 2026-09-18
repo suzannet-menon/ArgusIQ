@@ -131,7 +131,24 @@ npm start
 
 ### Deployment
 
-- Railway
+- **Backend** → Railway (FastAPI + uvicorn, `Procfile` at repo root)
+- **Frontend** → Vercel (static build of the `frontend/` app)
+
+---
+
+## Deploying the Frontend to Vercel
+
+1. **Import the repo** in Vercel and set the **Root Directory** to `frontend`. Vercel auto-detects Vite; `frontend/vercel.json` already adds SPA rewrites so `/dashboard`, `/login` and `/signup` work without a 404.
+2. **Set the API URL** — add this build-time environment variable in Vercel (Project → Settings → Environment Variables):
+
+   ```
+   VITE_API_BASE_URL=https://your-app.up.railway.app/api/v1
+   ```
+
+   Without it the browser falls back to `http://localhost:8000/api/v1` and the dashboard/alerts/chat show errors.
+3. **Deploy from `main`** — every push to `main` triggers a production deployment.
+
+> The Python backend is **not** deployed to Vercel — it stays on Railway. Vercel only serves the static frontend, which calls the Railway API over HTTPS (CORS already allows all origins in `main.py`). See the `.env.example` at the repo root for every environment variable.
 
 ---
 
