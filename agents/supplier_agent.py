@@ -1,7 +1,7 @@
 """
 ArgusIQ AI Chat Agent
-Calls Claude API with full supplier context.
-Falls back to pre-scripted answers if API call fails during demo.
+Calls the Groq (Llama) API with full supplier context.
+Falls back to pre-scripted answers if the API call fails during demo.
 """
 import os
 import requests
@@ -71,7 +71,7 @@ def _get_fallback(message: str) -> str | None:
 
 
 def build_context(supplier_id: str = None) -> str:
-    """Build the context string passed to Claude as system prompt data."""
+    """Build the context string passed to the LLM as system prompt data."""
     if supplier_id:
         s = get_supplier_by_id(supplier_id)
         if not s:
@@ -109,16 +109,16 @@ def build_context(supplier_id: str = None) -> str:
 
 def chat_with_agent(message: str, supplier_id: str = None) -> str:
     """
-    Main chat function. Tries Claude API first, falls back to pre-scripted answers.
-    Always returns a string  never crashes.
+    Main chat function. Tries the Groq API first, falls back to pre-scripted answers.
+    Always returns a string - never crashes.
     """
     # Try fallback first for known demo questions (instant, no API needed)
     fallback = _get_fallback(message)
 
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    api_key = os.getenv("GROQ_API_KEY", "")
     if not api_key or api_key == "your_key_here":
         return fallback or (
-            "ArgusIQ AI is ready. Add your ANTHROPIC_API_KEY to .env to enable live responses."
+            "ArgusIQ AI is ready. Add your GROQ_API_KEY to .env to enable live responses."
         )
 
     context = build_context(supplier_id)
@@ -132,26 +132,27 @@ Never make up data  only use the supplier data provided below.
 
     try:
         response = requests.post(
-            "https://api.anthropic.com/v1/messages",
+            "https://api.groq.com/openai/v1/chat/completions",
             headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
+                "Authorization": f"Bearer {api_key}",
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-sonnet-4-6",
+                "model": "llama-3.3-70b-versatile",
                 "max_tokens": 400,
-                "system": system_prompt,
-                "messages": [{"role": "user", "content": message}],
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message},
+                ],
             },
             timeout=10,
         )
         response.raise_for_status()
-        return response.json()["content"][0]["text"]
+        return response.json()["choices"][0]["message"]["content"]
 
     except Exception:
-        # Silent fallback  demo never breaks
+        # Silent fallback - demo never breaks
         return fallback or (
             "I'm having trouble reaching the AI service. "
-            "Please check your ANTHROPIC_API_KEY in the .env file."
+            "Please check your GROQ_API_KEY in the .env file."
         )

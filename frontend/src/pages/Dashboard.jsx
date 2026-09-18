@@ -4,8 +4,8 @@ import DashboardOverview from "../components/dashboard/DashboardOverview.jsx";
 import SuppliersList from "../components/dashboard/SuppliersList.jsx";
 import SupplierDetail from "../components/dashboard/SupplierDetail.jsx";
 import AlertsList from "../components/dashboard/AlertsList.jsx";
-import CompareTab from "../components/dashboard/CompareTab.jsx";
-import ChatTab from "../components/dashboard/ChatTab.jsx";
+import CompareTab from "../components/dashboard/Comparetab.jsx";
+import ChatTab from "../components/dashboard/Chattab.jsx";
 
 const TABS = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },

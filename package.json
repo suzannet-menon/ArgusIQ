@@ -1,8 +1,18 @@
 {
+  "name": "argusiq",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "uvicorn main:app --reload",
+    "dev:frontend": "npm run dev --prefix frontend"
+  },
   "dependencies": {
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.0",
     "lucide-react": "^1.21.0",
     "recharts": "^3.9.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }

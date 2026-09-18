@@ -2,7 +2,6 @@ import { useState } from "react";
 import { api } from "../../lib/api.js";
 
 const SUGGESTIONS = [
-  "Examples →",
   "Which suppliers are most urgent right now?",
   "Compare Anand Textiles vs Sharma Exports",
   "Which suppliers will decline in the next 14 days?",
