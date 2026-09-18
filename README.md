@@ -200,7 +200,29 @@ This uses `concurrently` to launch the backend (`uvicorn main:app --reload`) and
 
 ### Deployment
 
-- Railway
+- **Backend** → Railway (FastAPI + uvicorn, `Procfile` at repo root)
+- **Frontend** → Vercel (static build of the `frontend/` app)
+
+---
+
+## Deploying the Frontend to Vercel
+
+The frontend is a pure Vite/React static site, so it deploys to Vercel in minutes:
+
+1. **Import the repo** in Vercel and set the **Root Directory** to `frontend`.
+   (Vercel auto-detects the Vite framework; `frontend/vercel.json` already adds SPA rewrites so `/dashboard`, `/login`, etc. work without a 404.)
+2. **Set the API URL** — add this build-time environment variable in Vercel (Project → Settings → Environment Variables):
+
+   ```
+   VITE_API_BASE_URL=https://your-app.up.railway.app/api/v1
+   ```
+
+   Without it the browser falls back to `http://localhost:8000/api/v1` and the dashboard/alerts/chat show errors.
+3. **Deploy from `main`** — every push to `main` triggers a production deployment.
+
+> The Python backend is **not** deployed to Vercel — it stays on Railway. Vercel only hosts the static frontend, which talks to the Railway API over HTTPS (CORS is already wide open in `main.py`).
+
+See `.env.example` at the repo root for all environment variables.
 
 ---
 
