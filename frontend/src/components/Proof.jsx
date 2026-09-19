@@ -24,7 +24,7 @@ const items = [
 
 export function Proof() {
   return (
-    <section id="proof" className="bg-slate-50 py-28">
+    <section id="proof" className="bg-slate-50 py-28 scroll-mt-24">
       <div className="section-shell">
         <div className="mx-auto max-w-[900px] text-center">
           <p className="eyebrow">Proof, honestly</p>
@@ -41,7 +41,7 @@ export function Proof() {
             <SectionMotion
               key={item.title}
               delay={index * 0.06}
-              className="flex flex-col rounded-lg border border-slate-200 bg-white p-8"
+              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-card"
             >
               <item.icon className="text-primary" size={26} />
               <h3 className="mt-6 font-display text-xl font-semibold tracking-tight text-ink">{item.title}</h3>

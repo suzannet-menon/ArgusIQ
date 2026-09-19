@@ -24,4 +24,9 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, supplier_id: supplierId || undefined }),
     }),
+  chatHistory: () => request("/chat/history"),
+  clearChatHistory: () =>
+    request("/chat/history", {
+      method: "DELETE",
+    }),
 };

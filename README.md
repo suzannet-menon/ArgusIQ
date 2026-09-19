@@ -1,38 +1,37 @@
 # ArgusIQ
 
-ArgusIQ is an AI-powered supplier risk intelligence platform built for Indian e-commerce sellers, designed to flag supplier disruptions before they impact orders. The backend is built entirely in Python using FastAPI, with a dedicated scoring engine that computes a composite Supplier Risk Score across operational, financial, compliance, and sentiment signals, and an agents layer that powers AI-driven risk analysis using the Groq LLM API (Llama). The service is deployed on Railway, exposing portfolio, supplier detail, alerts, and comparison endpoints. Alongside this, ArgusIQ runs a live demo pod on Lemma SDK (https://argusiq.apps.lemma.work/), showcasing the supplier roster, real-time SRS scoring, and a conversational RiskAnalyst agent built directly on Lemma's agent and data infrastructure - demonstrating end-to-end SDK usage for the hackathon's demoable suppliers
+AI-powered supplier risk intelligence for Indian e-commerce sellers. ArgusIQ computes a 0–100 **Supplier Risk Score (SRS)** across Operational (35%), Financial (30%), Compliance (20%) and Sentiment (15%), forecasts risk 14 days ahead, and exposes it through a FastAPI backend and a Vite + React dashboard with a Groq-powered Risk Assistant. Also ships a live Lemma SDK demo pod at `https://argusiq.apps.lemma.work/`.
 
 ---
 
 ## Features
 
--  Interactive security dashboard
--  AI-assisted threat analysis
--  Real-time risk monitoring and visualization
--  Threat insights and analytics
--  Modern, responsive user interface
--  Fast and intuitive user experience
+- **Supplier Risk Intelligence** — Composite SRS with sub-scores, anomaly caps, and plain-English explanations
+- **14-Day Forecast** — Linear-regression trend with `days_to_high_risk`
+- **Portfolio Dashboard** — Sortable risk table, supplier detail, alerts, and side-by-side compare
+- **Risk Assistant (AI Chat)** — Groq `qwen/qwen3.8-27b` with full portfolio context, supplier-name detection, pre-scripted fallbacks, and grounded answers when the LLM is down
+- **Chat History** — GPT-style conversations (auto-titled from first message), recent-chats tree under Assistant, `localStorage` + backend `chat_history.json` (`/tmp` fallback on Vercel), right-click to delete, `New Chat` keeps history
+- **TimeMax-style Landing** — Fixed mono nav (Problem / How it works / Features / Product Journey / FAQ), open-laptop mockup with scaled `DemoScreen`, one-line headings, balanced bento grid
+- **Responsive + Animated** — Tailwind CSS, Framer Motion, Recharts
 
 ---
 
 ## Tech Stack
 
-### Frontend
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- Recharts
-- HTML
+### Frontend (`frontend/`)
+- **React 18** + **Vite 6** (build tool, HMR)
+- **Tailwind CSS 3** + **Framer Motion 11** + **Lucide React**
+- **React Router 7** (SPA routing)
+- **Recharts 2** (RiskChart, SignalGrid)
 
-### Backend
-- Node.js
-- Express.js
+### Backend (repo root)
+- **Python 3.14** + **FastAPI** + **Uvicorn** (ASGI)
+- **Pydantic 2** (validation), **python-dotenv**, **requests** (Groq calls)
+- **Groq API** `qwen/qwen3.8-27b` via `https://api.groq.com/openai/v1/chat/completions`
+- **Scoring engine** (`scoring/engine.py`) + **Forecast** (`scoring/forecast.py`) on `scoring/mock_data.py` (10 suppliers)
 
-### AI / Services
-- OpenAI API 
-- REST APIs
+### Deployment
+- **Vercel** — single deployment: `frontend/dist` static + `api/index.py` serverless (`vercel.json` rewrites). Env `VITE_API_BASE_URL=/api/v1` (same-origin) and `GROQ_API_KEY` in Vercel dashboard.
 
 ---
 
@@ -40,10 +39,43 @@ ArgusIQ is an AI-powered supplier risk intelligence platform built for Indian e-
 
 ```
 ArgusIQ/
-│
+├── main.py                     # FastAPI app (CORS, /api/v1 router, /)
+├── requirements.txt            # Python deps
+├── vercel.json                 # Vercel: build frontend, rewrite /api/* → api/index.py, SPA → /index.html
+├── .env.example                # GROQ_API_KEY + VITE_API_BASE_URL=/api/v1 template
+├── api/
+│   ├── routes.py               # GET /health, /portfolio, /suppliers/{id}, /alerts, /compare, POST /chat, GET|DELETE /chat/history
+│   └── index.py                # Vercel entry: from main import app
+├── scoring/
+│   ├── engine.py               # compute_srs() weighted composite + anomaly cap
+│   ├── forecast.py             # forecast_14_days() linear regression
+│   └── mock_data.py            # 10 suppliers (Delhi Spice … Anand Textiles) + get_all_suppliers()
+├── agents/
+│   ├── supplier_agent.py       # Groq call, _detect_supplier_id(), FALLBACKS, build_context(), chat_with_agent()
+│   └── chat_history.py         # In-memory + chat_history.json (/tmp fallback), get/add/clear
 ├── frontend/
-├── backend/
-└── README.md
+│   ├── index.html
+│   ├── vite.config.js          # base "/" (keep for Vercel/Render)
+│   ├── tailwind.config.js
+│   ├── vercel.json             # legacy frontend-only fallback (SPA rewrites)
+│   ├── src/
+│   │   ├── App.jsx             # BrowserRouter: / → landing, /dashboard/*, /login, /signup
+│   │   ├── main.jsx
+│   │   ├── styles.css          # Manrope + Space Grotesk + Space Mono, laptop-mockup styles
+│   │   ├── lib/api.js          # BASE_URL = import.meta.env.VITE_API_BASE_URL || http://localhost:8000/api/v1
+│   │   ├── pages/Dashboard.jsx # Tabs: Overview | Suppliers | Alerts | Compare | Chat
+│   │   ├── components/
+│   │   │   ├── Hero.jsx        # Fixed nav + 2-col hero + LaptopMockup<DemoScreen>
+│   │   │   ├── LaptopMockup.jsx# TimeMax open-laptop (notch, glare, keyboard, display)
+│   │   │   ├── DemoScreen.jsx  # Compact 12-col preview (SupplierCard, SignalGrid, RiskChart…)
+│   │   │   ├── Problem.jsx     # 3 cards (Late/No warning/Revenue leakage)
+│   │   │   ├── Solution.jsx    # 3 steps (Connect → Read → Score+forecast)
+│   │   │   ├── Features.jsx    # Bento: Signal breakdown + Explainable + Alerts + Compare + Metrics band
+│   │   │   ├── Proof.jsx, Timeline.jsx, FAQ.jsx, CTA.jsx, Footer.jsx
+│   │   │   └── dashboard/      # DashboardOverview, SuppliersList, SupplierDetail, AlertsList, Comparetab, Chattab
+│   │   └── data/demoData.js
+│   └── public/favicon.svg
+└── PROJECT_GUIDE.md            # Deep-dive + Iteration 2/3 teacher notes
 ```
 
 ---
@@ -53,218 +85,171 @@ ArgusIQ/
 ```mermaid
 flowchart TD
     subgraph User["User"]
-        BR["Browser<br/>(React app)"]
+        BR["Browser<br/>(React SPA)"]
     end
 
-    subgraph FE["Frontend (Vite)<br/>localhost:5173"]
-        UI["React + Tailwind UI<br/>pages / components / dashboard"]
-        API["lib/api.js<br/>centralized API client"]
+    subgraph FE["Frontend (Vite) — Vercel static<br/>frontend/dist"]
+        UI["React + Tailwind<br/>App.jsx / Hero / Dashboard"]
+        API["lib/api.js<br/>VITE_API_BASE_URL"]
+        LS["localStorage<br/>argusiq_conversations"]
     end
 
-    subgraph BE["Python Backend (FastAPI)<br/>localhost:8000"]
-        RT["api/routes.py<br/>REST endpoints"]
-        EN["scoring/engine.py<br/>Supplier Risk Score (0-100)"]
-        FC["scoring/forecast.py<br/>14-day risk forecast"]
-        MD["scoring/mock_data.py<br/>supplier data"]
-        AG["agents/supplier_agent.py<br/>AI risk analyst"]
+    subgraph VERCEL["Vercel"]
+        RW["vercel.json<br/>rewrites"]
+        SAPI["api/index.py<br/>from main import app"]
     end
 
-    subgraph EXT["External Services"]
-        GROQ["Groq LLM API<br/>(Llama)"]
+    subgraph BE["Python Backend (FastAPI)<br/>main.py"]
+        RT["api/routes.py<br/>/health /portfolio /suppliers /alerts /compare /chat"]
+        EN["scoring/engine.py<br/>SRS 0-100"]
+        FC["scoring/forecast.py<br/>14-day"]
+        MD["scoring/mock_data.py<br/>10 suppliers"]
+        CH["agents/chat_history.py<br/>memory + chat_history.json"]
+        AG["agents/supplier_agent.py<br/>_detect_supplier_id + Groq"]
+    end
+
+    subgraph EXT["External"]
+        GROQ["Groq API<br/>qwen/qwen3.8-27b"]
         LEM["Lemma SDK pod<br/>argusiq.apps.lemma.work"]
     end
 
     BR --> UI
     UI --> API
-    API -->|"HTTP /api/v1/*"| RT
-    RT -->|"compute scores"| EN
-    RT -->|"predict risk 14 days"| FC
+    UI <--> LS
+    API -->|"GET /api/v1/*<br/>POST /api/v1/chat"| RW
+    RW -->|"rewrites /api/*"| SAPI
+    SAPI --> RT
+    RT -->|"compute"| EN
+    RT -->|"forecast"| FC
     EN --> MD
     FC --> MD
-    RT -->|"POST /api/v1/chat"| AG
+    RT -->|"chat + history"| CH
+    RT -->|"chat_with_agent"| AG
     AG -->|"GROQ_API_KEY"| GROQ
     API -->|"demo pod"| LEM
+    RW -->|"rewrites /*"| UI
 ```
+
+`vercel.json` at repo root builds `frontend` and proxies ` /api/*` to the Python function; `frontend/vercel.json` is the legacy frontend-only fallback.
 
 ---
 
-##  Getting Started
+## Getting Started
 
-### 1. Clone the repository
+### 1. Clone
 
 ```bash
-git clone https://github.com/yourusername/argusiq.git
-cd argusiq
+git clone https://github.com/suzannet-menon/ArgusIQ.git
+cd ArgusIQ
+# or: https://github.com/dhamangeraashi-bit/ArgusIQ.git
 ```
 
----
+### 2. Install Dependencies
 
-## Install Dependencies
-
-### Frontend
-
+**Backend** — repo root (Python, not `backend/`):
 ```bash
-cd frontend
-npm install
-```
-
-### Backend
-
-The backend lives at the repo root (not in a `backend/` folder). Install Python dependencies once:
-
-```bash
-cd D:\ArgusIQ   # or wherever you cloned the repo
 pip install -r requirements.txt
 ```
 
-### API Key (for the AI Assistant tab)
-
-Create a `.env` file in the repo root with your Groq key:
-
+**Frontend:**
 ```bash
-GROQ_API_KEY=your_groq_api_key_here
+cd frontend
+npm install
+cd ..
 ```
 
-Without it, the Assistant falls back to pre-scripted demo answers.
+### 3. API Key (for Risk Assistant)
+
+Create `.env` at repo root:
+```bash
+GROQ_API_KEY=gsk_...        # https://console.groq.com/keys
+VITE_API_BASE_URL=/api/v1   # same-origin on Vercel; localhost fallback is http://localhost:8000/api/v1
+```
+Without a key, chat falls back to pre-scripted answers and grounded `build_context()` data. See `PROJECT_GUIDE.md:12.7` for 5-step Groq debugging (key loaded? → `GET /models` → `POST` model alive? → supplier detection? → Vercel env).
 
 ---
 
 ## Running the Project
 
-### Start the Backend
-
-Open a terminal in the repo root and run:
-
+### Backend only
 ```bash
+# from D:\ArgusIQ
 uvicorn main:app --reload
+# or: python -m uvicorn main:app --reload
+# → http://localhost:8000  docs at /docs
 ```
 
-or explicitly with Python:
-
-```bash
-python -m uvicorn main:app --reload
-```
-
-The API will be available at http://localhost:8000 (docs at http://localhost:8000/docs).
-
-### Start the Frontend
-
-Open another terminal and run:
-
+### Frontend only
 ```bash
 cd frontend
 npm run dev
+# → http://localhost:5173
 ```
 
-The frontend will usually be available at:
-
-```
-http://localhost:5173
-```
-
-### Start Backend + Frontend Together (Optional)
-
-From the repo root, one command starts both servers:
-
+### Both together (one terminal)
 ```bash
-npm run dev
+npm run dev              # concurrently: backend (blue) + frontend (green)
+# also: npm run dev:backend / npm run dev:frontend
 ```
 
-This uses `concurrently` to launch the backend (`uvicorn main:app --reload`) and the frontend (`npm run dev` inside `frontend/`) in the same terminal. You can also start them individually with `npm run dev:backend` and `npm run dev:frontend`.
-
-> Note: the backend is Python (FastAPI), not Node.js — so there is no `npm start` for it. Use `uvicorn` (or `python -m uvicorn main:app --reload`) from the repo root instead.
+> The backend is Python — `npm start` will not work for it. Use `uvicorn` from the repo root.
 
 ---
 
-##  Dependencies
+## Dependencies
 
-### Frontend
+### Frontend (`frontend/package.json`)
+- `react`, `react-dom`, `vite`, `@vitejs/plugin-react`
+- `tailwindcss`, `autoprefixer`, `postcss`
+- `react-router-dom`, `framer-motion`, `lucide-react`, `recharts`
 
-- React
-- React DOM
-- Vite
-- TypeScript
-- Tailwind CSS
-- React Router DOM
-- Axios
-- Recharts
-- Lucide React
-
-### Backend
-
-- FastAPI
-- Uvicorn
-- CORS Middleware
-- python-dotenv
-- Groq LLM API (Llama via api.groq.com)
+### Backend (`requirements.txt`)
+- `fastapi`, `uvicorn[standard]`, `starlette`, `pydantic`, `python-dotenv`, `requests`, `anyio`, `numpy`, `pandas`
 
 ### Deployment
-
-- **Backend** → Railway (FastAPI + uvicorn, `Procfile` at repo root)
-- **Frontend** → Vercel (static build of the `frontend/` app)
+- **Vercel (recommended, together):** `vercel.json` at root builds `frontend/dist` and runs `api/index.py` as serverless. Set `VITE_API_BASE_URL=/api/v1` + `GROQ_API_KEY` in Vercel → Settings → Environment Variables.
+- **Split:** Frontend → Vercel/Netlify (Root Directory `frontend`), Backend → Render/Fly.io (`uvicorn main:app --host 0.0.0.0 --port $PORT`). Then set `VITE_API_BASE_URL=https://<backend>/api/v1`.
 
 ---
 
-## Deploying the Frontend to Vercel
+## Deploying to Vercel (Together)
 
-The frontend is a pure Vite/React static site, so it deploys to Vercel in minutes:
-
-1. **Import the repo** in Vercel and set the **Root Directory** to `frontend`.
-   (Vercel auto-detects the Vite framework; `frontend/vercel.json` already adds SPA rewrites so `/dashboard`, `/login`, etc. work without a 404.)
-2. **Set the API URL** — add this build-time environment variable in Vercel (Project → Settings → Environment Variables):
-
+1. Push to GitHub, **Import** in Vercel — it auto-detects `framework: vite` via `vercel.json`.
+2. **Environment Variables** (Production):
    ```
-   VITE_API_BASE_URL=https://your-app.up.railway.app/api/v1
+   VITE_API_BASE_URL=/api/v1
+   GROQ_API_KEY=gsk_...
    ```
+3. **Deploy** — every push to `main` redeploys. Check `vercel logs` for `[ArgusIQ AI] Groq API failed: ...` if chat falls back.
 
-   Without it the browser falls back to `http://localhost:8000/api/v1` and the dashboard/alerts/chat show errors.
-3. **Deploy from `main`** — every push to `main` triggers a production deployment.
-
-> The Python backend is **not** deployed to Vercel — it stays on Railway. Vercel only hosts the static frontend, which talks to the Railway API over HTTPS (CORS is already wide open in `main.py`).
-
-See `.env.example` at the repo root for all environment variables.
+`python.terminal.useEnvFile` warning in VS Code on saving `.env` → set `"python.terminal.useEnvFile": true` in `.vscode/settings.json` to auto-inject `.env` into integrated terminals.
 
 ---
 
-## Screenshots
+## Future Enhancements
 
-### Dashboard
-
-![Dashboard Screenshot](screenshots/dashboard.png)
-
-### Demo Video
-
-![Video Screenshot](screenshots/video.png)
+- Real Postgres (`Supabase`/`Neon`) + `SQLAlchemy` + `Alembic` (see `PROJECT_GUIDE.md:13`)
+- JWT auth + multi-tenant `tenant_id`
+- `score_history` table for 90-day forecast + `Prophet`/`LSTM`
+- PDF export, dark mode, email/SMS alerts, `Vercel Cron` scoring job
+- See `PROJECT_GUIDE.md:7-8` for study paths
 
 ---
 
-##  Future Enhancements
-
-- Multi-user authentication
-- Role-based access control
-- Dark mode
-- Predictive threat detection
-- Cloud deployment
-- Exportable security reports
-
----
-
-##  Team
+## Team
 
 - Raashi Dhamange
 - Sarah Parekh
 - Suzanne Daniel Thomas
 
 ---
+
 ## Lemma SDK Integration
 
-ArgusIQ uses Lemma SDK as a secondary intelligence layer alongside our FastAPI backend:
-- **Lemma Table**: Supplier risk data mirrored from our scoring engine
-- **Lemma Agent (RiskAnalyst)**: Natural language Q&A over supplier risk data
-- **Lemma App**: Live pod interface for risk queries
+- **Lemma Table:** Supplier risk mirrored from `scoring/engine.py`
+- **Lemma Agent (RiskAnalyst):** NL Q&A over risk data
+- **Lemma App:** `https://argusiq.apps.lemma.work/`
 
-Live pod: https://argusiq.apps.lemma.work/
+## License
 
-## 📄 License
-
-This project was developed as part of a hackathon and is intended for educational and demonstration purposes.
+Hackathon — educational/demo purposes.

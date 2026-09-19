@@ -15,25 +15,17 @@ export function CTA() {
               Start tracking your suppliers today
             </h2>
             <p className="mt-5 max-w-[560px] text-lg leading-8 text-slate-300">
-              Free to start. Sample data included, and you're in the dashboard within a minute.
+              Sample data included, and you're in the dashboard within a minute.
             </p>
           </div>
           <div className="flex flex-col items-start gap-4 lg:items-end">
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:-translate-y-0.5 hover:bg-amber-600"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-slate-950 transition hover:-translate-y-0.5 hover:bg-amber-600"
             >
               Start tracking suppliers
               <ArrowRight size={16} />
             </Link>
-            <a
-              href="https://argusiq.apps.lemma.work/"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-300 transition hover:text-white"
-            >
-              Open the live demo pod <ExternalLink size={14} />
-            </a>
           </div>
         </SectionMotion>
       </div>

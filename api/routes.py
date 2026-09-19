@@ -10,6 +10,7 @@ from scoring.mock_data import get_all_suppliers, get_supplier_by_id
 from scoring.engine import compute_srs
 from scoring.forecast import forecast_14_days
 from agents.supplier_agent import chat_with_agent
+from agents.chat_history import get_history, add_exchange, clear_history
 
 router = APIRouter()
 
@@ -144,12 +145,27 @@ def chat(req: ChatRequest):
     Accepts a natural language question.
     Calls the Groq LLM API with full portfolio context.
     Falls back gracefully if the API is unavailable.
+    Saves to chat history.
     """
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
     reply = chat_with_agent(req.message.strip(), req.supplier_id)
+    add_exchange(req.message.strip(), reply, req.supplier_id)
     return {"reply": reply, "supplier_id": req.supplier_id}
+
+
+@router.get("/chat/history")
+def chat_history():
+    """Return saved chat history. Used by frontend to restore on reload."""
+    return {"history": get_history()}
+
+
+@router.delete("/chat/history")
+def clear_chat_history():
+    """Clear chat history. Called when user clicks New Chat."""
+    clear_history()
+    return {"status": "cleared"}
 
 
 # ── 6. Compare two suppliers ─────────────────────────────────────────────────
