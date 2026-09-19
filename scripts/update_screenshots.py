@@ -22,6 +22,14 @@ def caption_for(path: Path) -> str:
     return path.stem.replace("-", " ").replace("_", " ").title()
 
 
+def description_for(path: Path) -> str:
+    """Optional per-image description from a <name>.txt sidecar file."""
+    sidecar = path.with_suffix(".txt")
+    if sidecar.exists():
+        return sidecar.read_text(encoding="utf-8").strip()
+    return ""
+
+
 def main() -> None:
     images = sorted(
         (
@@ -32,10 +40,13 @@ def main() -> None:
         key=lambda p: p.name.lower(),
     )
     if images:
-        parts = [
-            f"### {caption_for(p)}\n\n![{caption_for(p)}](screenshots/{p.name})"
-            for p in images
-        ]
+        parts = []
+        for p in images:
+            part = f"### {caption_for(p)}\n\n![{caption_for(p)}](screenshots/{p.name})"
+            desc = description_for(p)
+            if desc:
+                part += f"\n\n{desc}"
+            parts.append(part)
         block = "\n\n".join(parts) + "\n"
     else:
         block = (

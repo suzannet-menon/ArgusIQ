@@ -1,0 +1,1 @@
+Risk Assistant — Groq-powered chat with suggestion chips, persisted conversations and recent-chats history.

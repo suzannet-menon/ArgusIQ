@@ -203,7 +203,7 @@ export default function ChatTab() {
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
+    <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex min-h-[calc(100vh-7rem)] flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-bold">Risk Assistant</h2>
         <button
@@ -256,7 +256,7 @@ export default function ChatTab() {
         </div>
       )}
 
-      <div className="h-80 overflow-y-auto bg-slate-50 border border-slate-200 rounded p-4 mb-3 flex flex-col gap-2">
+      <div className="min-h-[24rem] flex-1 overflow-y-auto bg-slate-50 border border-slate-200 rounded p-4 mb-3 flex flex-col gap-2">
         {messages.length === 0 && (
           <div className="h-full flex items-center justify-center text-center text-slate-400 text-sm px-10">
             Ask about any supplier, risk trend, or comparison or tap a suggestion above.
