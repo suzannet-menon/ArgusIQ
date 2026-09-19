@@ -24,10 +24,10 @@ export default function Timeline() {
         className="mx-auto mb-16 max-w-4xl text-center"
       >
         <p className="eyebrow">Product journey</p>
-        <h2 className="mt-5 font-display text-9xl font-bold tracking-tight text-ink lg:text-5xl">
+        <h2 className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-5xl">
           From supplier risks to proactive action
         </h2>
-        <p className="mx-auto mt-7 max-w-9xl text-xl leading-9 text-muted">
+        <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-muted">
           Every supplier is continuously monitored and turned into one explainable risk score.
         </p>
       </motion.div>

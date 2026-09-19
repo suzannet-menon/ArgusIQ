@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 /* stylelint-disable at-rule-no-unknown */
 @tailwind base;
@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #FAFAF7;
   color: #0f172a;
 }
@@ -55,5 +55,153 @@ body {
     /* Solid amber, not a gradient  one confident color reads more
        intentional than a 3-stop gradient on every CTA. */
     @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary px-7 py-4 font-bold text-slate-950 shadow-lg shadow-primary/25 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-600;
+  }
+}
+
+/* Tilted open-laptop product mockup (CSS 3D) */
+.tilted-laptop {
+  width: 100%;
+}
+
+.tilted-laptop__stage {
+  perspective: 2000px;
+}
+
+.tilted-laptop__body {
+  width: min(1000px, 100%);
+  margin: 0 auto;
+  transform: rotateX(9deg);
+  transform-style: preserve-3d;
+}
+
+.tilted-laptop__screen {
+  position: relative;
+  transform-origin: center bottom;
+  transform: rotateX(-5deg);
+  padding: 16px 16px 14px;
+  background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  border: 1px solid #1f2937;
+  border-radius: 18px 18px 6px 6px;
+  box-shadow: 0 40px 80px -38px rgba(15, 23, 42, 0.6);
+}
+
+.tilted-laptop__camera {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #334155;
+  box-shadow: inset 0 0 0 1px #1e293b;
+  z-index: 2;
+}
+
+.tilted-laptop__led {
+  position: absolute;
+  right: 18px;
+  top: 9px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f59e0b;
+  opacity: 0.85;
+  z-index: 2;
+}
+
+.tilted-laptop__display {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #0d1117;
+}
+
+.tilted-laptop__scale {
+  width: 100%;
+  height: 100%;
+}
+
+.tilted-laptop__brand {
+  display: block;
+  margin-top: 9px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.tilted-laptop__deck {
+  margin-top: -2px;
+  padding: 20px 26px 22px;
+  background: linear-gradient(180deg, #1f2937 0%, #0f172a 100%);
+  border-radius: 0 0 22px 22px;
+  box-shadow: 0 30px 60px -35px rgba(15, 23, 42, 0.65);
+  transform: translateZ(1px);
+}
+
+.tilted-laptop__keys {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: min(560px, 82%);
+  margin: 0 auto;
+}
+
+.tilted-laptop__keyrow {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 6px;
+}
+
+.tilted-laptop__key {
+  height: 15px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(148, 163, 184, 0.28),
+    0 2px 3px rgba(2, 6, 23, 0.5);
+}
+
+.tilted-laptop__trackpad {
+  width: 34%;
+  max-width: 240px;
+  height: 46px;
+  margin: 16px auto 0;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(148, 163, 184, 0.12),
+    0 8px 16px -8px rgba(2, 6, 23, 0.6);
+}
+
+.tilted-laptop__caption {
+  margin: 30px auto 0;
+  max-width: 720px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+@media (max-width: 640px) {
+  .tilted-laptop__deck {
+    padding: 14px 14px 16px;
+  }
+
+  .tilted-laptop__key {
+    height: 10px;
+  }
+
+  .tilted-laptop__keyrow {
+    gap: 4px;
+  }
+
+  .tilted-laptop__trackpad {
+    height: 34px;
   }
 }

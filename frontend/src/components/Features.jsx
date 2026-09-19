@@ -2,19 +2,35 @@ import { BellRing, BrainCircuit, GitCompareArrows, PieChart } from "lucide-react
 import { SectionMotion } from "./SectionMotion.jsx";
 
 const features = [
-  { icon: BellRing, title: "Real-time alerts", copy: "Catch threshold and forecast warnings early." },
-  { icon: BrainCircuit, title: "AI explanations", copy: "See why a score moved, in plain language." },
-  { icon: PieChart, title: "Risk breakdown", copy: "Operational, financial, compliance, sentiment." },
-  { icon: GitCompareArrows, title: "Supplier comparison", copy: "Compare vendors before key orders." },
+  {
+    icon: BellRing,
+    title: "Real-time alerts",
+    copy: "Act on threshold and forecast warnings the moment a supplier turns.",
+  },
+  {
+    icon: BrainCircuit,
+    title: "Plain-language explanations",
+    copy: "See exactly why a score moved, in words your team already uses.",
+  },
+  {
+    icon: PieChart,
+    title: "Signal-level risk breakdown",
+    copy: "Trace a score to its operational, financial, compliance, and sentiment drivers.",
+  },
+  {
+    icon: GitCompareArrows,
+    title: "Supplier comparison",
+    copy: "Shortlist vendors side-by-side before committing to key orders.",
+  },
 ];
 
 export function Features() {
   return (
-    <section id="features" className="py-28 bg-canvas">
+    <section id="features" className="bg-canvas py-28">
       <div className="section-shell">
-        <div className="mx-auto max-w-[1300px] text-center">
+        <div className="mx-auto max-w-[900px] text-center">
           <p className="eyebrow">Features</p>
-          <h2 className="mt-4 font-display text-5xl font-semibold tracking-tight text-ink sm:text-6xl lg:text-5xl">
+          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-5xl">
             Everything needed for proactive supplier decisions
           </h2>
         </div>
@@ -24,11 +40,11 @@ export function Features() {
             <SectionMotion
               key={feature.title}
               delay={index * 0.06}
-              className="rounded-lg border border-slate-200 bg-slate-50 px-8 py-10 text-left transition-all duration-200 hover:-translate-y-1 hover:border-amber-200 hover:bg-white hover:shadow-card"
+              className="rounded-lg border border-slate-200 bg-white px-8 py-10 text-left transition-all duration-200 hover:-translate-y-1 hover:border-amber-200 hover:shadow-card"
             >
               <feature.icon className="text-primary" size={28} />
-              <h3 className="mt-7 font-display text-2xl font-semibold tracking-tight text-ink">{feature.title}</h3>
-              <p className="mt-4 text-lg leading-8 text-muted">{feature.copy}</p>
+              <h3 className="mt-7 font-display text-xl font-semibold tracking-tight text-ink">{feature.title}</h3>
+              <p className="mt-4 text-base leading-7 text-muted">{feature.copy}</p>
             </SectionMotion>
           ))}
         </div>

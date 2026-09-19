@@ -11,12 +11,12 @@ export function Problem() {
   return (
     <section id="problem" className="relative overflow-hidden bg-slate-50 py-28">
       <div className="section-shell">
-        <div className="mx-auto max-w-[1300px] text-center">
+        <div className="mx-auto max-w-[900px] text-center">
           <p className="eyebrow">The problem</p>
-          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink sm:text-9xl lg:text-5xl">
+          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-5xl">
             Supplier risk is usually visible after the damage
           </h2>
-          <p className="mt-9 text-xl leading-5 text-muted sm:text-1xl">
+          <p className="mt-6 text-xl leading-8 text-muted">
             Supply teams need early signals, not post-incident spreadsheets.
           </p>
         </div>
@@ -35,14 +35,19 @@ export function Problem() {
           ))}
         </div>
 
-        <SectionMotion className="mt-20 rounded-lg border border-orange-200 bg-orange-50 px-8 py-10 text-ink sm:px-12">
+        <SectionMotion className="mt-20 rounded-lg border border-slate-200 bg-white px-8 py-10 text-ink sm:px-12">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
-              <AlertTriangle className="text-orange-600" size={32} />
-              <p className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                60% of sellers face supplier issues annually
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-orange-50 text-orange-600">
+                <AlertTriangle size={26} />
+              </span>
+              <p className="font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+                Current portfolio: 2 critical, 3 high, 3 moderate, 2 low of 10 suppliers
               </p>
             </div>
+            <span className="inline-flex shrink-0 items-center rounded bg-slate-100 px-2 py-1 text-xs font-bold uppercase tracking-wide text-slate-500">
+              Sample data
+            </span>
           </div>
         </SectionMotion>
       </div>
