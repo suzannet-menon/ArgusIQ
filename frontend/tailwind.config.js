@@ -13,9 +13,14 @@ export default {
         primary: "#F59E0B",
       },
       fontFamily: {
-        // A display face with actual character, used only for headlines 
-        // body copy stays on Inter (already wired via style.css).
+        // A display face with actual character, used only for headlines.
+        // Body copy is Manrope (a professional workhorse, replaces Inter),
+        // wired via styles.css on :root.
         display: ['"Space Grotesk"', "system-ui", "sans-serif"],
+        sans: ['"Manrope"', "ui-sans-serif", "system-ui", "sans-serif"],
+        // Space Mono gives the metric/eyebrow text that technical, instrument
+        // feel (mirrors the TimeMax reference page's mono accents).
+        mono: ['"Space Mono"', "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       boxShadow: {
         soft: "0 24px 70px rgba(15, 23, 42, 0.08)",

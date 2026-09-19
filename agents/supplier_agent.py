@@ -52,21 +52,40 @@ FALLBACKS = {
 }
 
 
+def _detect_supplier_id(message: str) -> str | None:
+    """If the user's message mentions a supplier name, return its ID."""
+    msg = message.lower()
+    for s in get_all_suppliers():
+        name = s["name"].lower()
+        # match full name or first word (e.g., "anand textiles" or just "anand")
+        first_word = name.split()[0]
+        if name in msg or first_word in msg:
+            # avoid false positives for very short/common words - require >=4 chars
+            if len(first_word) >= 4:
+                return s["id"]
+    return None
+
+
 def _get_fallback(message: str) -> str | None:
     """Return a fallback if the message matches a known demo question."""
     msg = message.lower()
+    # Check specific suppliers first
     if "sharma textiles" in msg or "sharma textile" in msg:
         return FALLBACKS["sharma textiles"]
     if "delhi spice" in msg:
         return FALLBACKS["delhi spice"]
+    if "sunrise" in msg:
+        return FALLBACKS["sunrise"]
+    # Check if message is about a specific supplier by name - build live answer
+    detected_id = _detect_supplier_id(message)
+    if detected_id:
+        return build_context(detected_id) + "\n\nRecommendation: This is live data for the requested supplier. Monitor its SRS trend and forecast before placing orders."
     if "worst" in msg or "worry" in msg or "urgent" in msg or "critical" in msg:
         return FALLBACKS["worst"]
     if "compare" in msg or "vs" in msg:
         return FALLBACKS["compare"]
     if "14 day" in msg or "fail" in msg or "going to" in msg:
         return FALLBACKS["14 days"]
-    if "sunrise" in msg:
-        return FALLBACKS["sunrise"]
     return None
 
 
@@ -112,13 +131,24 @@ def chat_with_agent(message: str, supplier_id: str = None) -> str:
     Main chat function. Tries the Groq API first, falls back to pre-scripted answers.
     Always returns a string - never crashes.
     """
-    # Try fallback first for known demo questions (instant, no API needed)
+    # Auto-detect supplier mentioned in message if not explicitly passed
+    if not supplier_id:
+        detected = _detect_supplier_id(message)
+        if detected:
+            supplier_id = detected
+
+    # Check fallback first - return instantly for demo questions (no API needed, always works)
     fallback = _get_fallback(message)
+    if fallback:
+        return fallback
 
     api_key = os.getenv("GROQ_API_KEY", "")
     if not api_key or api_key == "your_key_here":
-        return fallback or (
-            "ArgusIQ AI is ready. Add your GROQ_API_KEY to .env to enable live responses."
+        # No key but also no specific fallback - build a generic answer from live data
+        context = build_context(supplier_id)
+        return (
+            f"Based on current portfolio data:\n\n{context}\n\n"
+            f"Recommendation: Review suppliers with lowest SRS first. Add GROQ_API_KEY for AI-powered answers."
         )
 
     context = build_context(supplier_id)
@@ -138,21 +168,31 @@ Never make up data  only use the supplier data provided below.
                 "content-type": "application/json",
             },
             json={
-                "model": "llama-3.3-70b-versatile",
+                "model": "qwen/qwen3.8-27b",
                 "max_tokens": 400,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": message},
                 ],
             },
-            timeout=10,
+            timeout=15,
         )
         response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
 
-    except Exception:
-        # Silent fallback - demo never breaks
-        return fallback or (
-            "I'm having trouble reaching the AI service. "
-            "Please check your GROQ_API_KEY in the .env file."
-        )
+    except Exception as e:
+        # Log real error for debugging, then return useful fallback instead of dead-end
+        print(f"[ArgusIQ AI] Groq API failed: {e}")
+        # Build a data-grounded generic answer so any question gets a response
+        try:
+            context = build_context(supplier_id)
+            return (
+                f"Based on live portfolio data (AI service temporarily unavailable):\n\n"
+                f"{context}\n\n"
+                f"Recommendation: Focus on the lowest SRS suppliers listed above first."
+            )
+        except Exception:
+            return (
+                "I'm having trouble reaching the AI service. "
+                "Please check your GROQ_API_KEY in the .env file and that the key is set on Vercel."
+            )
