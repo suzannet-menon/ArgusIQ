@@ -134,6 +134,56 @@ flowchart TD
 
 ---
 
+## Screenshots
+
+> Auto-generated gallery — do not edit between the markers by hand. Paste new image files into `screenshots/` (descriptive names like `dashboard-overview.png`) and run `python scripts/update_screenshots.py` to refresh this section.
+
+<!-- SCREENSHOTS:START -->
+### Alerts
+
+![Alerts](screenshots/Alerts.png)
+
+Alerts tab — high-risk, critical and anomaly-flagged suppliers with anomaly message and trend.
+
+### Comparison Suppliers
+
+![Comparison Suppliers](screenshots/comparison-suppliers.png)
+
+Compare tab — Delhi Spice Co. vs Sharma Exports side-by-side sub-scores with a safer-choice recommendation.
+
+### Dashboard
+
+![Dashboard](screenshots/Dashboard.png)
+
+Dashboard overview — portfolio counts by risk band with the full supplier table sorted riskiest first.
+
+### Landing 1
+
+![Landing 1](screenshots/Landing-1.png)
+
+Landing hero — "Know supplier risk before it costs you" with the live Supplier Intelligence Dashboard inside the laptop mockup.
+
+### Landing 2
+
+![Landing 2](screenshots/Landing-2.png)
+
+Features bento — signal-breakdown weights with portfolio average, explainability drivers, real-time alerts and side-by-side comparison.
+
+### Landing 3 Product Journey
+
+![Landing 3 Product Journey](screenshots/landing-3-product-journey.png)
+
+Product journey — six stages from a healthy supplier to confident, evidence-based decisions.
+
+### Risk Assistant
+
+![Risk Assistant](screenshots/risk-assistant.png)
+
+Risk Assistant — Groq-powered chat with suggestion chips, persisted conversations and recent-chats history.
+<!-- SCREENSHOTS:END -->
+
+---
+
 ## Getting Started
 
 ### 1. Clone
@@ -174,10 +224,10 @@ Without a key, chat falls back to pre-scripted answers and grounded `build_conte
 ### Backend only
 ```bash
 # from D:\ArgusIQ
-uvicorn main:app --reload
-# or: python -m uvicorn main:app --reload
+python -m uvicorn main:app --reload
 # → http://localhost:8000  docs at /docs
 ```
+> Use `python -m uvicorn` (not bare `uvicorn`) — on Windows the `Scripts/` folder is usually not on `PATH`, so bare `uvicorn` fails with "not recognized".
 
 ### Frontend only
 ```bash
@@ -192,7 +242,11 @@ npm run dev              # concurrently: backend (blue) + frontend (green)
 # also: npm run dev:backend / npm run dev:frontend
 ```
 
-> The backend is Python — `npm start` will not work for it. Use `uvicorn` from the repo root.
+> The backend is Python — `npm start` will not work for it. `npm run dev:backend` runs `python -m uvicorn main:app --reload` from the repo root.
+
+### Login / Signup (dummy for now)
+
+`/login` and `/signup` are **UI-only placeholders** — any email logs you in locally, no password is checked, nothing is stored server-side. Real authentication (DB users, hashed passwords, JWT) is being worked on; see `PROJECT_GUIDE.md:7.1` and `13` for the plan.
 
 ---
 

@@ -1,0 +1,1 @@
+Alerts tab — high-risk, critical and anomaly-flagged suppliers with anomaly message and trend.

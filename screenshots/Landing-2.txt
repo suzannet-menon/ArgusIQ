@@ -1,0 +1,1 @@
+Features bento — signal-breakdown weights with portfolio average, explainability drivers, real-time alerts and side-by-side comparison.
