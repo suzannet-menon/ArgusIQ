@@ -134,6 +134,16 @@ flowchart TD
 
 ---
 
+## Screenshots
+
+> Auto-generated gallery — do not edit between the markers by hand. Paste new image files into `screenshots/` (descriptive names like `dashboard-overview.png`) and run `python scripts/update_screenshots.py` to refresh this section.
+
+<!-- SCREENSHOTS:START -->
+_No screenshots yet — paste image files into `screenshots/` and run `python scripts/update_screenshots.py`._
+<!-- SCREENSHOTS:END -->
+
+---
+
 ## Getting Started
 
 ### 1. Clone
